@@ -50,20 +50,28 @@ public class MainController {
             log.info("#########################cycleTime  = " + cycleTime + " #########################");
             log.info("  ");
             log.info("  ");
+            // 1 获取所有存活的主机厂
             List<TbEngineFactory> listEngineFactory = listEngineFactory = startTaskService.getListEngineFactoryWithAlive(experimentsNumber, cycleTime);
 
             List<TbEngineFactoryDynamic> listEngineFactoryDynamic = new ArrayList<>();
+
+            // 2 生成所有活的供应商
             List<TbSupplier> listSuppliers = startTaskService.getListTbSuppliersWithAlive(experimentsNumber, cycleTime);
             List<TbSupplierDynamic> listSupplierDynamic = new ArrayList<>();
 
+            // 3 主机厂任务分解
             ArrayList<ArrayList<EngineFactoryManufacturingTask>> listListEngineFactoryTaskDecomposition = startTaskService.genEngineFactoryTaskDecomposition(
                     experimentsNumber, cycleTime, listEngineFactory, listEngineFactoryDynamic);
+
+            // 4 供应商任务分解
             ArrayList<ArrayList<SupplierTask>> listListSupplierTask = startTaskService.genSupplierTask(
                     experimentsNumber, cycleTime, listSuppliers, listSupplierDynamic);
+            // 5 获取两者关系矩阵
             Map<String, Double> mapRelationshipMatrix = startTaskService.getMapRelationshipMatrix(experimentsNumber, cycleTime);
             Map<String, TbRelationMatrix> mapRelationshipMatrix2WithTbRelationMatrix = startTaskService.getMapRelationshipMatrix2WithTbRelationMatrix(experimentsNumber, cycleTime);
 //            log.info("+++processTaskService.getTransactionContracts!!!!!");
 
+            // 6
             ArrayList<TransactionContract> listTransactionContract = processTaskService.getTransactionContracts(listListEngineFactoryTaskDecomposition, listListSupplierTask, mapRelationshipMatrix);
 
 

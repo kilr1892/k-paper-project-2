@@ -65,8 +65,6 @@ public interface StartTaskService {
      */
     ArrayList<ArrayList<SupplierTask>> genSupplierTask(int experimentsNumber, int cycleTime, List<TbSupplier> listSuppliers, List<TbSupplierDynamic> listSupplierDynamic);
 
-    // TODO 这个供给关系, 需要重构(如果影响性能很大的话)
-
     /**
      * 获得主机厂与供应商之间的关系矩阵
      * key   = 主机厂id + 供应商id

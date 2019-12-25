@@ -18,8 +18,10 @@ import lombok.ToString;
 public class EngineFactoryManufacturingTask {
     /** 主机厂id */
     private String engineFactoryId;
-    /** 主机厂信誉度 */
-    private double engineFactoryCredit;
+    //    /** 主机厂信誉度 */
+//    private double engineFactoryCredit;
+    /** 主机厂总资产 */
+    private int engineFactoryTotalAssets;
     /** 任务类型 */
     private int taskType;
     /** 零件需求 */
@@ -33,9 +35,9 @@ public class EngineFactoryManufacturingTask {
     /** 匹配度 */
     private double matchDegree;
 
-    public EngineFactoryManufacturingTask(String engineFactoryId, double engineFactoryCredit,double[] engineFactoryLocationXY) {
+    public EngineFactoryManufacturingTask(String engineFactoryId,int engineFactoryTotalAssets,double[] engineFactoryLocationXY) {
         this.engineFactoryId = engineFactoryId;
-        this.engineFactoryCredit = engineFactoryCredit;
+        this.engineFactoryTotalAssets = engineFactoryTotalAssets;
         this.engineFactoryLocationXY = engineFactoryLocationXY;
     }
 

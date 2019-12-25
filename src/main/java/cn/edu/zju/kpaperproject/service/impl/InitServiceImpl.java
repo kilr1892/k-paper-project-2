@@ -99,8 +99,8 @@ public class InitServiceImpl implements InitService {
             // 需求预测
             tbEngineFactoryDynamic.setEngineFactoryDemandForecastD(CalculationUtils.demandForecast((NumberEnum.CYCLE_TIME_INIT)
                     , price[NumberEnum.PRICE_LOW_ARRAY_INDEX], price[NumberEnum.PRICE_UPPER_ARRAY_INDEX], quality));
-            // 创新概率
-            tbEngineFactoryDynamic.setEngineFactoryInnovationProbability(RandomUtils.nextDouble(0, 1));
+            // 创新概率 0-0.5
+            tbEngineFactoryDynamic.setEngineFactoryInnovationProbability(RandomUtils.nextDouble(0, 0.5));
             tbEngineFactoryDynamic.setEngineFactoryInnovationTimes(0);
             // 插入数据库
             tbEngineFactoryDynamicMapper.insertSelective(tbEngineFactoryDynamic);
@@ -180,8 +180,8 @@ public class InitServiceImpl implements InitService {
         tbSupplierDynamic.setSupplierPricePU(price[NumberEnum.PRICE_UPPER_ARRAY_INDEX]);
         // 质量
         tbSupplierDynamic.setSupplierQualityQs(InitSupplierUtils.initQuality());
-        // 创新概率
-        tbSupplierDynamic.setSupplierInnovationProbability(RandomUtils.nextDouble(0, 1));
+        // 创新概率0-0.5
+        tbSupplierDynamic.setSupplierInnovationProbability(RandomUtils.nextDouble(0, 0.5));
         tbSupplierDynamic.setSupplierInnovationTimes(0);
     }
 

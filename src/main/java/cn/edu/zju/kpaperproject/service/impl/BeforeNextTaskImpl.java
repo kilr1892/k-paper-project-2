@@ -399,8 +399,8 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
                 // 需求预测
                 tbEngineFactoryDynamic.setEngineFactoryDemandForecastD(CalculationUtils.demandForecast(cycleTime
                         , price[NumberEnum.PRICE_LOW_ARRAY_INDEX], price[NumberEnum.PRICE_UPPER_ARRAY_INDEX], quality));
-                // 创新概率
-                tbEngineFactoryDynamic.setEngineFactoryInnovationProbability(RandomUtils.nextDouble(0, 1));
+                // 创新概率 0-0.5
+                tbEngineFactoryDynamic.setEngineFactoryInnovationProbability(RandomUtils.nextDouble(0, 0.5));
                 tbEngineFactoryDynamic.setEngineFactoryInnovationTimes(0);
                 // 加入集合中
                 listEngineFactory.add(tbEngineFactory);
@@ -574,7 +574,7 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
                     // 初始总资产
                     tbSupplierDynamic.setSupplierTotalAssetsP(InitSupplierUtils.initTotalAssets());
                     // 信誉度
-                    tbSupplierDynamic.setSupplierCreditA(aveSupplierCreditTmp);
+//                    tbSupplierDynamic.setSupplierCreditA(aveSupplierCreditTmp);
                     // 最大产能
                     tbSupplierDynamic.setSupplierCapacityM(InitSupplierUtils.initCapacity());
                     // 价格
@@ -583,8 +583,8 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
                     tbSupplierDynamic.setSupplierPricePU(price[NumberEnum.PRICE_UPPER_ARRAY_INDEX]);
                     // 质量
                     tbSupplierDynamic.setSupplierQualityQs(InitSupplierUtils.initQuality());
-                    // 创新概率
-                    tbSupplierDynamic.setSupplierInnovationProbability(RandomUtils.nextDouble(0, 1));
+                    // 创新概率0-0.5
+                    tbSupplierDynamic.setSupplierInnovationProbability(RandomUtils.nextDouble(0, 0.5));
                     tbSupplierDynamic.setSupplierInnovationTimes(0);
                     // 动态数据里的type
                     tbSupplierDynamic.setSupplierType(InitSupplierUtils.initType(supplierTypeCode[i]));

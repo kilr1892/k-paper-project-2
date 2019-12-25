@@ -146,7 +146,7 @@ public class StartTaskServiceImpl implements StartTaskService {
             // 供应商id
             supplierTask.setSupplierId(supplierId);
             // 供应商信誉度
-            supplierTask.setSupplierCredit(tbSupplierDynamic.getSupplierCreditA());
+//            supplierTask.setSupplierCredit(tbSupplierDynamic.getSupplierCreditA());
             // 服务类型
             int supplierType = aSupplier.getSupplierType();
             supplierTask.setSupplierType(supplierType);
@@ -208,7 +208,7 @@ public class StartTaskServiceImpl implements StartTaskService {
     /**
      * 生成主机厂分解任务
      * <p>
-     * 返回值按信誉度从高到底排, 信誉度相同就按210任务出价从高到底排
+     * 返回值按总资产从高到底排, 总资产相同就按210任务出价从高到底排
      * (会更新主机厂动态数组)
      *
      * @param experimentsNumber        实验次数
@@ -247,7 +247,7 @@ public class StartTaskServiceImpl implements StartTaskService {
             listEngineFactoryDynamic.add(engineFactoryDynamic);
 
             // 信誉度
-            Double engineFactoryCredit = engineFactoryDynamic.getEngineFactoryCreditH();
+//            Double engineFactoryCredit = engineFactoryDynamic.getEngineFactoryCreditH();
             // 成品数量预测
             int qi = genEngineFactoryPlannedCapacity(cycleTime, engineFactoryId);
 
@@ -255,7 +255,8 @@ public class StartTaskServiceImpl implements StartTaskService {
                 // 任务分解模型实例
                 // 主机id + 信誉度 + 地理位置
                 EngineFactoryManufacturingTask engineFactoryManufacturingTask = new EngineFactoryManufacturingTask(
-                        engineFactoryId, engineFactoryCredit, new double[]{aEngineFactory.getEngineFactoryLocationGX(), aEngineFactory.getEngineFactoryLocationGY()});
+                        engineFactoryId, engineFactoryDynamic.getEngineFactoryTotalAssetsP()
+                        , new double[]{aEngineFactory.getEngineFactoryLocationGX(), aEngineFactory.getEngineFactoryLocationGY()});
 
                 // 任务类型
                 engineFactoryManufacturingTask.setTaskType(supplierTypeCodes[i]);
@@ -275,7 +276,7 @@ public class StartTaskServiceImpl implements StartTaskService {
         }
         // 返回值排序
         res.sort((o1, o2) -> {
-            double diff = o2.get(0).getEngineFactoryCredit() - o1.get(0).getEngineFactoryCredit();
+            double diff = o2.get(0).getEngineFactoryTotalAssets() - o1.get(0).getEngineFactoryTotalAssets();
             if (diff != 0) {
                 // 先按信誉度排
                 return diff > 0 ? 1 : -1;
