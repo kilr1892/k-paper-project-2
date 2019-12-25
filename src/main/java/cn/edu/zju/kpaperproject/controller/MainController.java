@@ -77,7 +77,7 @@ public class MainController {
 
 
 //            log.info("+++processTaskService.getTransactionSettlement!!!!!");
-            List<OrderPlus> listOrderPlus = processTaskService.getTransactionSettlement(experimentsNumber, cycleTime, listTransactionContract, mapRelationshipMatrix, mapRelationshipMatrix2WithTbRelationMatrix);
+            List<OrderPlus> listOrderPlus = processTaskService.getTransactionSettlement(experimentsNumber, cycleTime, listTransactionContract, mapRelationshipMatrix, mapRelationshipMatrix2WithTbRelationMatrix, mapEngineFactoryIdVsRank, mapSupplierIdVsRank);
 //            log.info("+++beforeNextTask.getListEngineFactoryFinalProvision!!!!!!");
             List<EngineFactoryFinalProvision> listEngineFactoryFinalProvision = beforeNextTask.getListEngineFactoryFinalProvision(experimentsNumber, cycleTime, listOrderPlus);
 //            log.info("+++beforeNextTask.beforeNextTask!!!!!");

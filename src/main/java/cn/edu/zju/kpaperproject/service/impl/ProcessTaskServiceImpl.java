@@ -1,8 +1,6 @@
 package cn.edu.zju.kpaperproject.service.impl;
 
-import cn.edu.zju.kpaperproject.dto.EngineFactoryManufacturingTask;
-import cn.edu.zju.kpaperproject.dto.SupplierTask;
-import cn.edu.zju.kpaperproject.dto.TransactionContract;
+import cn.edu.zju.kpaperproject.dto.*;
 import cn.edu.zju.kpaperproject.enums.CalculationEnum;
 import cn.edu.zju.kpaperproject.enums.NumberEnum;
 import cn.edu.zju.kpaperproject.mapper.OrderPlusMapper;
@@ -43,6 +41,8 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
      * @param listTransactionContracts                   交易契约集合
      * @param mapRelationshipMatrix                      关系矩阵1
      * @param mapRelationshipMatrix2WithTbRelationMatrix 关系矩阵2
+     * @param mapEngineFactoryIdVsRank
+     * @param mapSupplierIdVsRank
      * @return 实际交易结果集合
      */
     @Override
@@ -51,7 +51,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             , int cycleTimes
             , ArrayList<TransactionContract> listTransactionContracts
             , Map<String, Double> mapRelationshipMatrix
-            , Map<String, TbRelationMatrix> mapRelationshipMatrix2WithTbRelationMatrix) {
+            , Map<String, TbRelationMatrix> mapRelationshipMatrix2WithTbRelationMatrix, Map<String, EngineFactoryRank> mapEngineFactoryIdVsRank, Map<String, SupplierRank> mapSupplierIdVsRank) {
 
         // 返回值的list
         List<OrderPlus> listOrderPlus = new ArrayList<>();
@@ -110,96 +110,18 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             orderPlus.setRelationshipStrength(newRelationshipStrength);
 
             // 计算利润
-            int[] profit = getProfit(aTransactionContract, whetherPerformContract, actualTransactionsNumber);
+            int[] profit = getProfit(aTransactionContract, whetherPerformContract, actualTransactionsNumber, mapEngineFactoryIdVsRank, mapSupplierIdVsRank);
             orderPlus.setEngineFactoryProfit(profit[0]);
             orderPlus.setSupplierProfit(profit[1]);
 
-
-//             初始信誉度
-//            orderPlus.setEngineFactoryInitCredit(aTransactionContract.getEngineFactoryCredit());
-//            orderPlus.setSupplierInitCredit(aTransactionContract.getSupplierCredit());
-//             计算交易后的信誉度, 放在map里先
-//            addMapForCredit(orderPlus, mapEngineFactoryCredit, mapSupplierCredit);
-
             listOrderPlus.add(orderPlus);
         }
-        // 计算信誉度
-//        for (OrderPlus aOrderPlus : listOrderPlus) {
-//            String engineFactoryId = aOrderPlus.getEngineFactoryId();
-//            String supplierId = aOrderPlus.getSupplierId();
-//            // 主机厂id 对应的listOrder(也就是说这个主机厂与5个供应商相关的订单)
-//            List<OrderPlus> listEngineFactoryMatchSupplier = mapEngineFactoryCredit.get(engineFactoryId);
-//            // 供应商id 对应的listOrder(供应商对那家主机厂提供服务代订单)
-//            List<OrderPlus> listSupplierMatchEngineFactory = mapSupplierCredit.get(supplierId);
-//
-//            // 补全主机厂新的的信誉度
-//            double engineFactoryNewCredit = getNewCredit(listEngineFactoryMatchSupplier, "engine");
-//            aOrderPlus.setEngineFactoryNewCredit(engineFactoryNewCredit);
-//            // 补全供应商新的信誉度
-//            double supplierNewCredit = getNewCredit(listSupplierMatchEngineFactory, "supplier");
-//            aOrderPlus.setSupplierNewCredit(supplierNewCredit);
-//        }
 
         // # 把orderPlus存入数据库
         orderPlusMapper.insertList(listOrderPlus);
-//        for (OrderPlus orderPlus : listOrderPlus) {
-//            orderPlusMapper.insertSelective(orderPlus);
-//        }
+
         return listOrderPlus;
     }
-
-//    /**
-//     * 计算主机厂或者供应商的信誉度
-//     *
-//     * @param listMatches 主机厂对应的所有供应商集合 或 供应商对应的所有主机厂集合
-//     * @param type        engine supplier
-//     * @return
-//     */
-//    private double getNewCredit(List<OrderPlus> listMatches, String type) {
-//        double initCredit;
-//        double sum = 0D;
-//        switch (type) {
-//            case "engine":
-//                initCredit = listMatches.get(0).getEngineFactoryInitCredit();
-//                for (OrderPlus orderPlus : listMatches) {
-//                    // 主机厂的履约情况
-//                    boolean supplierWhetherPerformContract = orderPlus.getEngineWhetherPerformContract();
-//                    // 供应商的评分
-//                    int supplierToEngineFactoryScore = orderPlus.getSupplierToEngineFactoryScore();
-//                    // 供应商的信誉度
-//                    double initSupplierCredit = orderPlus.getSupplierInitCredit();
-//                    if (supplierWhetherPerformContract) {
-//                        // 履约
-//                        sum += supplierToEngineFactoryScore * initSupplierCredit;
-//                    } else {
-//                        // 违约
-//                        sum -= supplierToEngineFactoryScore * initSupplierCredit;
-//                    }
-//                }
-//                break;
-//            case "supplier":
-//                initCredit = listMatches.get(0).getSupplierInitCredit();
-//                for (OrderPlus orderPlus : listMatches) {
-//                    // 供应商的履约情况
-//                    boolean supplierWhetherPerformContract = orderPlus.getSupplierWhetherPerformContract();
-//                    // 主机厂的评分
-//                    int engineFactoryToSupplierScore = orderPlus.getEngineFactoryToSupplierScore();
-//                    // 主机厂的信誉度
-//                    double initEngineFactoryCredit = orderPlus.getEngineFactoryInitCredit();
-//                    if (supplierWhetherPerformContract) {
-//                        // 履约
-//                        sum += engineFactoryToSupplierScore * initEngineFactoryCredit;
-//                    } else {
-//                        // 违约
-//                        sum -= engineFactoryToSupplierScore * initEngineFactoryCredit;
-//                    }
-//                }
-//                break;
-//            default:
-//                throw new RuntimeException("no such type");
-//        }
-//        return initCredit + sum / (10 * listMatches.size());
-//    }
 
     /**
      * 把信誉度计算相关的map放进来
@@ -232,29 +154,63 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
      * @param transactionContract      交易契约
      * @param whetherPerformContract   是否履约数组
      * @param actualTransactionsNumber 实际交易数量
+     * @param mapEngineFactoryIdVsRank
+     * @param mapSupplierIdVsRank
      * @return 0: 主机厂利润, 1: 供应商利润
      */
-    private int[] getProfit(TransactionContract transactionContract, boolean[] whetherPerformContract, int actualTransactionsNumber) {
+    private int[] getProfit(TransactionContract transactionContract, boolean[] whetherPerformContract, int actualTransactionsNumber, Map<String, EngineFactoryRank> mapEngineFactoryIdVsRank, Map<String, SupplierRank> mapSupplierIdVsRank) {
         boolean engineIsPerformContract = whetherPerformContract[0];
         boolean supplierIsPerformContract = whetherPerformContract[1];
-        // 公式里绝对值的部分(只有绝对值)
-        int absJKI = 0;
-        int absIJK = 0;
-        if ((engineIsPerformContract && supplierIsPerformContract) || (!engineIsPerformContract && !supplierIsPerformContract)) {
-            // 1 1 或 0 0
-            // 使用默认值
-        } else if (engineIsPerformContract) {
-            // 1 0
-            absJKI = 2;
-//            absJKI = 1;
-            absIJK = -2;
-//            absIJK = -1;
+
+        // 先获取主机厂和供应商的企业规模排序
+        String engineFactoryId = transactionContract.getEngineFactoryId();
+        EngineFactoryRank engineFactoryRank = mapEngineFactoryIdVsRank.get(engineFactoryId);
+        int sCi;
+        if (engineFactoryRank.getRankNumber() < engineFactoryRank.getListSize() * 0.5) {
+            // 前50%, 规模较大
+            sCi = 2;
         } else {
-            // 0 1
-            absJKI = -2;
-//            absJKI = -1;
-            absIJK = 2;
-//            absIJK = 1;
+            // 后50, 规模较小
+            sCi = 1;
+        }
+        String supplierId = transactionContract.getSupplierId();
+        SupplierRank supplierRank = mapSupplierIdVsRank.get(engineFactoryId);
+        int sCjk;
+        if (supplierRank.getRankNumber() < supplierRank.getListSize() * 0.5) {
+            // 前50%, 规模较大
+            sCjk = 2;
+        } else {
+            // 后50, 规模较小
+            sCjk = 1;
+        }
+        int iIjk;
+        int iJki;
+        switch (sCi/sCjk) {
+            case 1:
+                iIjk = 1;
+                iJki = 1;
+                break;
+            case 2:
+                iIjk = 0;
+                iJki = 0;
+                break;
+            case 0:
+                iIjk = 2;
+                iJki = 2;
+                break;
+            default:
+                throw new RuntimeException("haha");
+        }
+
+
+        // 公式里绝对值的部分(只有绝对值)
+        int ri = 0;
+        int rjk = 0;
+        if (whetherPerformContract[0]) {
+            ri = 1;
+        }
+        if (whetherPerformContract[1]) {
+            rjk = 1;
         }
         // 合同价
         int orderPrice = transactionContract.getOrderPrice();
@@ -262,10 +218,11 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
         int engineFactoryNeedServiceNumber = transactionContract.getEngineFactoryNeedServiceNumber();
 
         int[] res = new int[2];
-        res[0] = absJKI * orderPrice * engineFactoryNeedServiceNumber + (absIJK - 1) * orderPrice * actualTransactionsNumber;
+        res[0] = (iJki + iIjk * ri - iIjk * rjk - iIjk) * orderPrice * engineFactoryNeedServiceNumber + (iIjk + iJki * rjk - iIjk * ri - iIjk - 1) * orderPrice * actualTransactionsNumber;
         // 两地距离
         int distance = (int) Math.round(CalculationUtils.calDistance(transactionContract.getEngineFactoryLocationXY(), transactionContract.getSupplierLocationXY()));
-        res[1] = (int) ((absIJK * orderPrice * engineFactoryNeedServiceNumber + (1 + absJKI) * orderPrice * actualTransactionsNumber - distance * CalculationEnum.freight) * 0.1);
+        res[1] = (int) (0.1 * (iIjk + iJki * rjk - iIjk * ri - iJki) * orderPrice * engineFactoryNeedServiceNumber +
+                0.1 * (1 + iJki + iIjk * ri - iIjk - iJki * rjk) * orderPrice * actualTransactionsNumber - distance * CalculationEnum.freight);
         return res;
     }
 
@@ -704,10 +661,6 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                 // 供应商总资产
                 transactionContract.setSupplierTotalAsset(supplierTask.getSupplierTotalAsset());
 
-                // 所有主机厂总资产的50%
-                transactionContract.setEngineFactory50PercentSumTotalAsset();
-                // 每类供应商的总资产的50%
-                transactionContract.setArrSupplier50PercentSumTotalAsset();
 
                 // 初始期望价格
                 transactionContract.setEngineFactory2ServiceOfferPrice(engineFactoryManufacturingTask.getEngineFactory2ServiceOfferPrice());

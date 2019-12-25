@@ -1,8 +1,6 @@
 package cn.edu.zju.kpaperproject.service;
 
-import cn.edu.zju.kpaperproject.dto.EngineFactoryManufacturingTask;
-import cn.edu.zju.kpaperproject.dto.SupplierTask;
-import cn.edu.zju.kpaperproject.dto.TransactionContract;
+import cn.edu.zju.kpaperproject.dto.*;
 import cn.edu.zju.kpaperproject.pojo.*;
 
 import java.util.ArrayList;
@@ -38,6 +36,8 @@ public interface ProcessTaskService {
      * @param listTransactionContracts                   交易契约集合
      * @param mapRelationshipMatrix                      关系矩阵1
      * @param mapRelationshipMatrix2WithTbRelationMatrix 关系矩阵2
+     * @param mapEngineFactoryIdVsRank
+     * @param mapSupplierIdVsRank
      * @return 实际交易结果集合
      */
     List<OrderPlus> getTransactionSettlement(
@@ -45,5 +45,5 @@ public interface ProcessTaskService {
             , int cycleTimes
             , ArrayList<TransactionContract> listTransactionContracts
             , Map<String, Double> mapRelationshipMatrix
-            , Map<String, TbRelationMatrix> mapRelationshipMatrix2WithTbRelationMatrix);
+            , Map<String, TbRelationMatrix> mapRelationshipMatrix2WithTbRelationMatrix, Map<String, EngineFactoryRank> mapEngineFactoryIdVsRank, Map<String, SupplierRank> mapSupplierIdVsRank);
 }

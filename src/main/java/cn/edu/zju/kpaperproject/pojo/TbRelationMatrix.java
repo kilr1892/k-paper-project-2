@@ -17,7 +17,7 @@ public class TbRelationMatrix {
 
     private Double initialRelationalDegree;
 
-    private Integer accumulativeTotalScore;
+    private Double accumulativeTotalScore;
 
     private Integer transactionNumber;
 
@@ -85,11 +85,11 @@ public class TbRelationMatrix {
         this.initialRelationalDegree = initialRelationalDegree;
     }
 
-    public Integer getAccumulativeTotalScore() {
+    public Double getAccumulativeTotalScore() {
         return accumulativeTotalScore;
     }
 
-    public void setAccumulativeTotalScore(Integer accumulativeTotalScore) {
+    public void setAccumulativeTotalScore(Double accumulativeTotalScore) {
         this.accumulativeTotalScore = accumulativeTotalScore;
     }
 
