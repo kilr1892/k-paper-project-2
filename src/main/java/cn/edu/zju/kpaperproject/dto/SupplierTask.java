@@ -31,4 +31,6 @@ public class SupplierTask {
     /** 剩余产能 */
     private int supplierRestCapacity;
 
+    /** 供应商总资产 */
+    public int supplierTotalAsset;
 }

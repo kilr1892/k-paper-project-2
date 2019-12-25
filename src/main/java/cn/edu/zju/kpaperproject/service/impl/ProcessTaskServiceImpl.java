@@ -59,9 +59,9 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
         double supplierPerformanceProbability;
         // 信誉度计算相关的map
         // 主机厂的
-        Map<String, List<OrderPlus>> mapEngineFactoryCredit = new HashMap<>(100);
+//        Map<String, List<OrderPlus>> mapEngineFactoryCredit = new HashMap<>(100);
         // 供应商的
-        Map<String, List<OrderPlus>> mapSupplierCredit = new HashMap<>(100);
+//        Map<String, List<OrderPlus>> mapSupplierCredit = new HashMap<>(100);
 
         for (TransactionContract aTransactionContract : listTransactionContracts) {
             // 每次循环是每个交易契约
@@ -70,7 +70,6 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             orderPlus.setEngineFactoryId(aTransactionContract.getEngineFactoryId());
             orderPlus.setSupplierId(aTransactionContract.getSupplierId());
             // 主机厂初始期望价格
-//            orderPlus.setEngineFactoryToServiceOfferPrice(aTransactionContract.getEngineFactory2ServiceOfferPrice());
             orderPlus.setEngineFactoryToServiceOfferPriceLow(aTransactionContract.getEngineFactory2ServiceOfferPrice()[0]);
             orderPlus.setEngineFactoryToServiceOfferPriceUpper(aTransactionContract.getEngineFactory2ServiceOfferPrice()[1]);
 
@@ -98,9 +97,9 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             orderPlus.setSupplierActualNumberM(actualTransactionsNumber);
 
             // 双方评分
-            int[] evaluationScore = getEvaluationScore(whetherPerformContract);
-            orderPlus.setEngineFactoryToSupplierScore(evaluationScore[1]);
-            orderPlus.setSupplierToEngineFactoryScore(evaluationScore[0]);
+//            int[] evaluationScore = getEvaluationScore(whetherPerformContract);
+//            orderPlus.setEngineFactoryToSupplierScore(evaluationScore[1]);
+//            orderPlus.setSupplierToEngineFacto ryScore(evaluationScore[0]);
 
             // 计算新的关系强度
             double newRelationshipStrength = getNewRelationshipStrength(aTransactionContract, whetherPerformContract, evaluationScore, mapRelationshipMatrix2WithTbRelationMatrix);
@@ -112,31 +111,31 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             orderPlus.setEngineFactoryProfit(profit[0]);
             orderPlus.setSupplierProfit(profit[1]);
 
-            // 初始信誉度
-            orderPlus.setEngineFactoryInitCredit(aTransactionContract.getEngineFactoryCredit());
-            orderPlus.setSupplierInitCredit(aTransactionContract.getSupplierCredit());
-            // 计算交易后的信誉度, 放在map里先
-            addMapForCredit(orderPlus, mapEngineFactoryCredit, mapSupplierCredit);
+
+//             初始信誉度
+//            orderPlus.setEngineFactoryInitCredit(aTransactionContract.getEngineFactoryCredit());
+//            orderPlus.setSupplierInitCredit(aTransactionContract.getSupplierCredit());
+//             计算交易后的信誉度, 放在map里先
+//            addMapForCredit(orderPlus, mapEngineFactoryCredit, mapSupplierCredit);
 
             listOrderPlus.add(orderPlus);
         }
         // 计算信誉度
-        for (OrderPlus aOrderPlus : listOrderPlus) {
-            String engineFactoryId = aOrderPlus.getEngineFactoryId();
-            String supplierId = aOrderPlus.getSupplierId();
-            // 主机厂id 对应的listOrder(也就是说这个主机厂与5个供应商相关的订单)
-            List<OrderPlus> listEngineFactoryMatchSupplier = mapEngineFactoryCredit.get(engineFactoryId);
-            // 供应商id 对应的listOrder(供应商对那家主机厂提供服务代订单)
-            List<OrderPlus> listSupplierMatchEngineFactory = mapSupplierCredit.get(supplierId);
-
-            // TODO 这里应该是可以消除重复计算的, 后续再优化
-            // 补全主机厂新的的信誉度
-            double engineFactoryNewCredit = getNewCredit(listEngineFactoryMatchSupplier, "engine");
-            aOrderPlus.setEngineFactoryNewCredit(engineFactoryNewCredit);
-            // 补全供应商新的信誉度
-            double supplierNewCredit = getNewCredit(listSupplierMatchEngineFactory, "supplier");
-            aOrderPlus.setSupplierNewCredit(supplierNewCredit);
-        }
+//        for (OrderPlus aOrderPlus : listOrderPlus) {
+//            String engineFactoryId = aOrderPlus.getEngineFactoryId();
+//            String supplierId = aOrderPlus.getSupplierId();
+//            // 主机厂id 对应的listOrder(也就是说这个主机厂与5个供应商相关的订单)
+//            List<OrderPlus> listEngineFactoryMatchSupplier = mapEngineFactoryCredit.get(engineFactoryId);
+//            // 供应商id 对应的listOrder(供应商对那家主机厂提供服务代订单)
+//            List<OrderPlus> listSupplierMatchEngineFactory = mapSupplierCredit.get(supplierId);
+//
+//            // 补全主机厂新的的信誉度
+//            double engineFactoryNewCredit = getNewCredit(listEngineFactoryMatchSupplier, "engine");
+//            aOrderPlus.setEngineFactoryNewCredit(engineFactoryNewCredit);
+//            // 补全供应商新的信誉度
+//            double supplierNewCredit = getNewCredit(listSupplierMatchEngineFactory, "supplier");
+//            aOrderPlus.setSupplierNewCredit(supplierNewCredit);
+//        }
 
         // # 把orderPlus存入数据库
         orderPlusMapper.insertList(listOrderPlus);
@@ -371,27 +370,29 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
      * @return 0: 主机厂履约概率, 1: 供应商履约概率
      */
     private double[] getPerformanceProbability(TransactionContract transactionContract, Map<String, Double> mapRelationshipMatrix) {
+        final double lowerLimit = 0.2;
+        final double upperLimit = 0.6;
         // key
         String key = transactionContract.getEngineFactoryId() + transactionContract.getSupplierId();
         // 信誉度
-        double engineFactoryCredit = transactionContract.getEngineFactoryCredit();
-        double supplierCredit = transactionContract.getSupplierCredit();
+//        double engineFactoryCredit = transactionContract.getEngineFactoryCredit();
+//        double supplierCredit = transactionContract.getSupplierCredit();
         double apLm1 = CalculationEnum.apLm1;
         double apLm2 = CalculationEnum.apLm2;
         double apLm3 = CalculationEnum.apLm3;
         double apLm4 = CalculationEnum.apLm4;
         double apLm5 = CalculationEnum.apLm5;
         double relationshipValue = mapRelationshipMatrix.get(key);
-        double engineFactoryPerformanceProbability = apLm1 * engineFactoryCredit + apLm2 * relationshipValue;
+        double engineFactoryPerformanceProbability = apLm1 * transactionContract.getEngineFactoryTotalAsset() + apLm2 * relationshipValue;
 //        engineFactoryPerformanceProbability = engineFactoryPerformanceProbability >= 0 ? engineFactoryPerformanceProbability : 0.4;
-        engineFactoryPerformanceProbability = engineFactoryPerformanceProbability >= 0.3 ? engineFactoryPerformanceProbability : 0.3;
+        engineFactoryPerformanceProbability = engineFactoryPerformanceProbability >= lowerLimit ? engineFactoryPerformanceProbability : lowerLimit;
 //        engineFactoryPerformanceProbability = engineFactoryPerformanceProbability <= 1 ? engineFactoryPerformanceProbability : 0.8;
-        engineFactoryPerformanceProbability = engineFactoryPerformanceProbability <= 0.8 ? engineFactoryPerformanceProbability : 0.8;
-        double supplierPerformanceProbability = apLm3 * supplierCredit + apLm4 * relationshipValue + apLm5 * RandomUtils.nextDouble(0D, 1D);
+        engineFactoryPerformanceProbability = engineFactoryPerformanceProbability <= upperLimit ? engineFactoryPerformanceProbability : upperLimit;
+        double supplierPerformanceProbability = apLm3 * transactionContract.getSupplierTotalAsset() + apLm4 * relationshipValue + apLm5 * RandomUtils.nextDouble(0, 0.5);
 //        supplierPerformanceProbability = supplierPerformanceProbability >= 0 ? supplierPerformanceProbability : 0.4;
-        supplierPerformanceProbability = supplierPerformanceProbability >= 0.3 ? supplierPerformanceProbability : 0.3;
+        supplierPerformanceProbability = supplierPerformanceProbability >= lowerLimit ? supplierPerformanceProbability : lowerLimit;
 //        supplierPerformanceProbability = supplierPerformanceProbability <= 1 ? supplierPerformanceProbability : 0.8;
-        supplierPerformanceProbability = supplierPerformanceProbability <= 0.8 ? supplierPerformanceProbability : 0.8;
+        supplierPerformanceProbability = supplierPerformanceProbability <= upperLimit ? supplierPerformanceProbability : upperLimit;
         return new double[]{engineFactoryPerformanceProbability, supplierPerformanceProbability};
     }
 
@@ -682,6 +683,14 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                 transactionContract.setOrderQuality(supplierTask.getSupplierQuality());
                 // 匹配度
                 transactionContract.setMatchDegree(engineFactoryManufacturingTask.getMatchDegree());
+
+
+
+                // 主机厂总资产
+                transactionContract.setEngineFactoryTotalAsset(engineFactoryManufacturingTask.getEngineFactoryTotalAssets());
+                // 供应商总资产
+                transactionContract.setSupplierTotalAsset(supplierTask.getSupplierTotalAsset());
+
 
                 // 初始期望价格
                 transactionContract.setEngineFactory2ServiceOfferPrice(engineFactoryManufacturingTask.getEngineFactory2ServiceOfferPrice());

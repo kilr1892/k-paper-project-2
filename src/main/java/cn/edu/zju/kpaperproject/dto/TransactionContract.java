@@ -36,4 +36,9 @@ public class TransactionContract {
     private int orderQuality;
     /** 匹配度 */
     private double matchDegree;
+
+    /** 主机厂总资产 */
+    private int engineFactoryTotalAsset;
+    /** 供应商总资产 */
+    private int supplierTotalAsset;
 }

@@ -160,6 +160,8 @@ public class StartTaskServiceImpl implements StartTaskService {
             supplierTask.setSupplierLocationXY(new double[]{aSupplier.getSupplierLocationGX(), aSupplier.getSupplierLocationGY()});
             // 剩余产能
             supplierTask.setSupplierRestCapacity(tbSupplierDynamic.getSupplierCapacityM());
+            // 总资产
+            supplierTask.setSupplierTotalAsset(tbSupplierDynamic.getSupplierTotalAssetsP());
 
             // 选择对应点的集合存入供应商任务模型
             switch (supplierType) {
