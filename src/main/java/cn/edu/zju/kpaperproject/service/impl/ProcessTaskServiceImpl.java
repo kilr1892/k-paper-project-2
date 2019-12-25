@@ -6,9 +6,8 @@ import cn.edu.zju.kpaperproject.dto.TransactionContract;
 import cn.edu.zju.kpaperproject.enums.CalculationEnum;
 import cn.edu.zju.kpaperproject.enums.NumberEnum;
 import cn.edu.zju.kpaperproject.mapper.OrderPlusMapper;
-import cn.edu.zju.kpaperproject.pojo.OrderPlus;
-import cn.edu.zju.kpaperproject.pojo.TbEngineFactory;
-import cn.edu.zju.kpaperproject.pojo.TbRelationMatrix;
+import cn.edu.zju.kpaperproject.pojo.*;
+import cn.edu.zju.kpaperproject.service.BeforeNextTask;
 import cn.edu.zju.kpaperproject.service.ProcessTaskService;
 import cn.edu.zju.kpaperproject.utils.CalculationUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +31,9 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
 
     @Autowired
     private OrderPlusMapper orderPlusMapper;
+
+    @Autowired
+    private BeforeNextTask beforeNextTask;
 
     /**
      * 交易结算
@@ -101,8 +103,9 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
 //            orderPlus.setEngineFactoryToSupplierScore(evaluationScore[1]);
 //            orderPlus.setSupplierToEngineFacto ryScore(evaluationScore[0]);
 
+
             // 计算新的关系强度
-            double newRelationshipStrength = getNewRelationshipStrength(aTransactionContract, whetherPerformContract, evaluationScore, mapRelationshipMatrix2WithTbRelationMatrix);
+            double newRelationshipStrength = getNewRelationshipStrength(aTransactionContract, actualTransactionsNumber, whetherPerformContract, mapRelationshipMatrix2WithTbRelationMatrix);
             orderPlus.setRelationshipStrength(newRelationshipStrength);
             orderPlus.setRelationshipStrength(newRelationshipStrength);
 
@@ -145,58 +148,58 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
         return listOrderPlus;
     }
 
-    /**
-     * 计算主机厂或者供应商的信誉度
-     *
-     * @param listMatches 主机厂对应的所有供应商集合 或 供应商对应的所有主机厂集合
-     * @param type        engine supplier
-     * @return
-     */
-    private double getNewCredit(List<OrderPlus> listMatches, String type) {
-        double initCredit;
-        double sum = 0D;
-        switch (type) {
-            case "engine":
-                initCredit = listMatches.get(0).getEngineFactoryInitCredit();
-                for (OrderPlus orderPlus : listMatches) {
-                    // 主机厂的履约情况
-                    boolean supplierWhetherPerformContract = orderPlus.getEngineWhetherPerformContract();
-                    // 供应商的评分
-                    int supplierToEngineFactoryScore = orderPlus.getSupplierToEngineFactoryScore();
-                    // 供应商的信誉度
-                    double initSupplierCredit = orderPlus.getSupplierInitCredit();
-                    if (supplierWhetherPerformContract) {
-                        // 履约
-                        sum += supplierToEngineFactoryScore * initSupplierCredit;
-                    } else {
-                        // 违约
-                        sum -= supplierToEngineFactoryScore * initSupplierCredit;
-                    }
-                }
-                break;
-            case "supplier":
-                initCredit = listMatches.get(0).getSupplierInitCredit();
-                for (OrderPlus orderPlus : listMatches) {
-                    // 供应商的履约情况
-                    boolean supplierWhetherPerformContract = orderPlus.getSupplierWhetherPerformContract();
-                    // 主机厂的评分
-                    int engineFactoryToSupplierScore = orderPlus.getEngineFactoryToSupplierScore();
-                    // 主机厂的信誉度
-                    double initEngineFactoryCredit = orderPlus.getEngineFactoryInitCredit();
-                    if (supplierWhetherPerformContract) {
-                        // 履约
-                        sum += engineFactoryToSupplierScore * initEngineFactoryCredit;
-                    } else {
-                        // 违约
-                        sum -= engineFactoryToSupplierScore * initEngineFactoryCredit;
-                    }
-                }
-                break;
-            default:
-                throw new RuntimeException("no such type");
-        }
-        return initCredit + sum / (10 * listMatches.size());
-    }
+//    /**
+//     * 计算主机厂或者供应商的信誉度
+//     *
+//     * @param listMatches 主机厂对应的所有供应商集合 或 供应商对应的所有主机厂集合
+//     * @param type        engine supplier
+//     * @return
+//     */
+//    private double getNewCredit(List<OrderPlus> listMatches, String type) {
+//        double initCredit;
+//        double sum = 0D;
+//        switch (type) {
+//            case "engine":
+//                initCredit = listMatches.get(0).getEngineFactoryInitCredit();
+//                for (OrderPlus orderPlus : listMatches) {
+//                    // 主机厂的履约情况
+//                    boolean supplierWhetherPerformContract = orderPlus.getEngineWhetherPerformContract();
+//                    // 供应商的评分
+//                    int supplierToEngineFactoryScore = orderPlus.getSupplierToEngineFactoryScore();
+//                    // 供应商的信誉度
+//                    double initSupplierCredit = orderPlus.getSupplierInitCredit();
+//                    if (supplierWhetherPerformContract) {
+//                        // 履约
+//                        sum += supplierToEngineFactoryScore * initSupplierCredit;
+//                    } else {
+//                        // 违约
+//                        sum -= supplierToEngineFactoryScore * initSupplierCredit;
+//                    }
+//                }
+//                break;
+//            case "supplier":
+//                initCredit = listMatches.get(0).getSupplierInitCredit();
+//                for (OrderPlus orderPlus : listMatches) {
+//                    // 供应商的履约情况
+//                    boolean supplierWhetherPerformContract = orderPlus.getSupplierWhetherPerformContract();
+//                    // 主机厂的评分
+//                    int engineFactoryToSupplierScore = orderPlus.getEngineFactoryToSupplierScore();
+//                    // 主机厂的信誉度
+//                    double initEngineFactoryCredit = orderPlus.getEngineFactoryInitCredit();
+//                    if (supplierWhetherPerformContract) {
+//                        // 履约
+//                        sum += engineFactoryToSupplierScore * initEngineFactoryCredit;
+//                    } else {
+//                        // 违约
+//                        sum -= engineFactoryToSupplierScore * initEngineFactoryCredit;
+//                    }
+//                }
+//                break;
+//            default:
+//                throw new RuntimeException("no such type");
+//        }
+//        return initCredit + sum / (10 * listMatches.size());
+//    }
 
     /**
      * 把信誉度计算相关的map放进来
@@ -270,12 +273,13 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
      * 计算交易后新的关系强度
      *
      * @param transactionContract                        交易契约
+     * @param actualTransactionsNumber                   实际成交数量
      * @param whetherPerformContract                     是否履约
-     * @param evaluationScore                            双方评分
      * @param mapRelationshipMatrix2WithTbRelationMatrix 关系强度
      * @return 计算后的新的关系强度
      */
-    private double getNewRelationshipStrength(TransactionContract transactionContract, boolean[] whetherPerformContract, int[] evaluationScore, Map<String, TbRelationMatrix> mapRelationshipMatrix2WithTbRelationMatrix) {
+    private double getNewRelationshipStrength(TransactionContract transactionContract, int actualTransactionsNumber
+            , boolean[] whetherPerformContract, Map<String, TbRelationMatrix> mapRelationshipMatrix2WithTbRelationMatrix) {
 
         String key = transactionContract.getEngineFactoryId() + transactionContract.getSupplierId();
         TbRelationMatrix tbRelationMatrix = mapRelationshipMatrix2WithTbRelationMatrix.get(key);
@@ -284,33 +288,41 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
         // 阿尔法2撇
         int relationshipStrengthA2Slash = CalculationEnum.relationshipStrengthA2Slash;
         // 历史累加中间变量
-        int accumulativeTotalScore = tbRelationMatrix.getAccumulativeTotalScore();
-        // 双方评分和
-        int evaluationScoreSum = evaluationScore[0] + evaluationScore[1];
-        // 计算累加的值
+        double accumulativeTotalScore = tbRelationMatrix.getAccumulativeTotalScore();
+//        // 双方评分和
+//        int evaluationScoreSum = evaluationScore[0] + evaluationScore[1];
+//        // 计算累加的值
+//        if (whetherPerformContract[0] && whetherPerformContract[1]) {
+//            // 都履约为正
+//            accumulativeTotalScore += evaluationScoreSum;
+//        } else {
+//            // 有一个不履约就为负
+//            accumulativeTotalScore -= evaluationScoreSum;
+//        }
+        double tmp = accumulativeTotalScore * 1.0 / transactionContract.getEngineFactoryNeedServiceNumber();
         if (whetherPerformContract[0] && whetherPerformContract[1]) {
             // 都履约为正
-            accumulativeTotalScore += evaluationScoreSum;
+            accumulativeTotalScore += tmp;
         } else {
             // 有一个不履约就为负
-            accumulativeTotalScore -= evaluationScoreSum;
+            accumulativeTotalScore -= tmp;
         }
+
         // 重新设置累加的中间变量
         tbRelationMatrix.setAccumulativeTotalScore(accumulativeTotalScore);
 
         // 交易次数 =0?
-
         int transactionNumber = tbRelationMatrix.getTransactionNumber() + 1;
         tbRelationMatrix.setTransactionNumber(transactionNumber);
         // 重新计算出的关系强度
-        double relationScore = initialRelationalDegree + 1D * relationshipStrengthA2Slash * accumulativeTotalScore / (20 * transactionNumber);
+        double relationScore = initialRelationalDegree + 1D * accumulativeTotalScore / transactionNumber;
         tbRelationMatrix.setRelationScore(relationScore);
         return relationScore;
     }
 
 
     private int getActualTransactionsNumber(int engineFactoryNeedServiceNumber, double[] performanceProbability, boolean[] whetherPerformContract) {
-        int res = engineFactoryNeedServiceNumber;
+        int res;
         int tmpAbs = 1;
         for (int i = 0; i < whetherPerformContract.length; i++) {
             if (!whetherPerformContract[i]) {
@@ -318,7 +330,8 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                 tmpAbs *= performanceProbability[i];
             }
         }
-        res = (int) Math.round((0.8 + 0.2 * tmpAbs) * engineFactoryNeedServiceNumber);
+//        res = (int) Math.round((0.8 + 0.2 * tmpAbs) * engineFactoryNeedServiceNumber);
+        res = (int) (engineFactoryNeedServiceNumber * (0.6 + 0.4 * tmpAbs));
         return res;
     }
 
@@ -416,6 +429,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             , Map<String, Double> mapRelationshipMatrix
             , List<TbEngineFactory> listEngineFactory) {
 
+
         // 中间值__list中每个map元素代表一个厂的所有任务和最终匹配上的唯一供应商
         ArrayList<LinkedHashMap<EngineFactoryManufacturingTask, SupplierTask>> listMapEngineFactoryTaskVsSupplierTask = new ArrayList<>();
 
@@ -461,7 +475,6 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                     // 中间的, 匹配2/3
                     indexLimit = supplierTasks.size() * 2 / 3;
                 }
-
 
 
                 // ## 粗匹配( 用剩余产能 )
@@ -691,6 +704,10 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                 // 供应商总资产
                 transactionContract.setSupplierTotalAsset(supplierTask.getSupplierTotalAsset());
 
+                // 所有主机厂总资产的50%
+                transactionContract.setEngineFactory50PercentSumTotalAsset();
+                // 每类供应商的总资产的50%
+                transactionContract.setArrSupplier50PercentSumTotalAsset();
 
                 // 初始期望价格
                 transactionContract.setEngineFactory2ServiceOfferPrice(engineFactoryManufacturingTask.getEngineFactory2ServiceOfferPrice());

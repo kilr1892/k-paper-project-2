@@ -1,6 +1,8 @@
 package cn.edu.zju.kpaperproject.service.impl;
 
 import cn.edu.zju.kpaperproject.dto.EngineFactoryManufacturingTask;
+import cn.edu.zju.kpaperproject.dto.EngineFactoryRank;
+import cn.edu.zju.kpaperproject.dto.SupplierRank;
 import cn.edu.zju.kpaperproject.dto.SupplierTask;
 import cn.edu.zju.kpaperproject.enums.NumberEnum;
 import cn.edu.zju.kpaperproject.enums.SupplierEnum;
@@ -11,15 +13,11 @@ import cn.edu.zju.kpaperproject.mapper.TbSupplierMapper;
 import cn.edu.zju.kpaperproject.pojo.*;
 import cn.edu.zju.kpaperproject.service.StartTaskService;
 import cn.edu.zju.kpaperproject.mapper.*;
-import cn.edu.zju.kpaperproject.pojo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * .
@@ -98,6 +96,79 @@ public class StartTaskServiceImpl implements StartTaskService {
         }
 
         return mapRes;
+    }
+
+    @Override
+    public void genMapEngineFactoryIdVsRankAndmapSupplierIdVsRank(Map<String, EngineFactoryRank> mapEngineFactoryIdVsRank, Map<String, SupplierRank> mapSupplierIdVsRank, List<TbEngineFactory> listEngineFactory, List<TbEngineFactoryDynamic> listEngineFactoryDynamic, List<TbSupplier> listSuppliers, List<TbSupplierDynamic> listSupplierDynamic) {
+        listEngineFactoryDynamic.sort(((o1, o2) -> o2.getEngineFactoryTotalAssetsP() - o1.getEngineFactoryTotalAssetsP()));
+        EngineFactoryRank engineFactoryRank;
+        for (int i = 0; i < listEngineFactoryDynamic.size(); i++) {
+            engineFactoryRank = new EngineFactoryRank();
+            TbEngineFactoryDynamic tbEngineFactoryDynamic = listEngineFactoryDynamic.get(i);
+            engineFactoryRank.setListSize(listEngineFactoryDynamic.size());
+            engineFactoryRank.setRankNumber(i);
+            engineFactoryRank.setTbEngineFactoryDynamic(tbEngineFactoryDynamic);
+            mapEngineFactoryIdVsRank.put(tbEngineFactoryDynamic.getEngineFactoryId(), engineFactoryRank);
+        }
+
+        ArrayList<TbSupplierDynamic> list210 = new ArrayList<>();
+        ArrayList<TbSupplierDynamic> list220 = new ArrayList<>();
+        ArrayList<TbSupplierDynamic> list230 = new ArrayList<>();
+        ArrayList<TbSupplierDynamic> list240 = new ArrayList<>();
+        ArrayList<TbSupplierDynamic> list250 = new ArrayList<>();
+
+        for (TbSupplierDynamic supplierDynamic : listSupplierDynamic) {
+            int supplierType = supplierDynamic.getSupplierType();
+            switch (supplierType) {
+                case 210:
+                    list210.add(supplierDynamic);
+                    break;
+                case 220:
+                    list220.add(supplierDynamic);
+                    break;
+                case 230:
+                    list230.add(supplierDynamic);
+                    break;
+                case 240:
+                    list240.add(supplierDynamic);
+                    break;
+                case 250:
+                    list250.add(supplierDynamic);
+                    break;
+                default:
+                    throw new RuntimeException("供应商类型错误");
+            }
+        }
+
+        list210.sort(((o1, o2) -> o2.getSupplierTotalAssetsP() - o1.getSupplierTotalAssetsP()));
+        list220.sort(((o1, o2) -> o2.getSupplierTotalAssetsP() - o1.getSupplierTotalAssetsP()));
+        list230.sort(((o1, o2) -> o2.getSupplierTotalAssetsP() - o1.getSupplierTotalAssetsP()));
+        list240.sort(((o1, o2) -> o2.getSupplierTotalAssetsP() - o1.getSupplierTotalAssetsP()));
+        list250.sort(((o1, o2) -> o2.getSupplierTotalAssetsP() - o1.getSupplierTotalAssetsP()));
+        genSupplierRank(mapSupplierIdVsRank, list210);
+        genSupplierRank(mapSupplierIdVsRank, list220);
+        genSupplierRank(mapSupplierIdVsRank, list230);
+        genSupplierRank(mapSupplierIdVsRank, list240);
+        genSupplierRank(mapSupplierIdVsRank, list250);
+
+
+    }
+
+    /**
+     * 放入map里
+     * @param mapSupplierIdVsRank
+     * @param listTbSupplierDynamic 已经排过序的
+     */
+    private void genSupplierRank(Map<String, SupplierRank> mapSupplierIdVsRank, ArrayList<TbSupplierDynamic> listTbSupplierDynamic) {
+        SupplierRank supplierRank;
+        for (int i = 0; i < listTbSupplierDynamic.size(); i++) {
+            supplierRank = new SupplierRank();
+            TbSupplierDynamic supplierDynamic = listTbSupplierDynamic.get(i);
+            supplierRank.setListSize(listTbSupplierDynamic.size());
+            supplierRank.setRankNumber(i);
+            supplierRank.setTbSupplierDynamic(supplierDynamic);
+            mapSupplierIdVsRank.put(supplierDynamic.getSupplierId(), supplierRank);
+        }
     }
 
     /**

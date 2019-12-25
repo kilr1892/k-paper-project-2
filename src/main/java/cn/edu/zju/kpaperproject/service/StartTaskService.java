@@ -1,6 +1,8 @@
 package cn.edu.zju.kpaperproject.service;
 
 import cn.edu.zju.kpaperproject.dto.EngineFactoryManufacturingTask;
+import cn.edu.zju.kpaperproject.dto.EngineFactoryRank;
+import cn.edu.zju.kpaperproject.dto.SupplierRank;
 import cn.edu.zju.kpaperproject.dto.SupplierTask;
 import cn.edu.zju.kpaperproject.pojo.*;
 
@@ -86,4 +88,7 @@ public interface StartTaskService {
      * @return 循环次数 - 1 时(最新的)关系矩阵
      */
     Map<String, TbRelationMatrix> getMapRelationshipMatrix2WithTbRelationMatrix(int experimentsNumber, int cycleTime);
+
+    void genMapEngineFactoryIdVsRankAndmapSupplierIdVsRank(Map<String, EngineFactoryRank> mapEngineFactoryIdVsRank, Map<String, SupplierRank> mapSupplierIdVsRank, List<TbEngineFactory> listEngineFactory, List<TbEngineFactoryDynamic> listEngineFactoryDynamic, List<TbSupplier> listSuppliers, List<TbSupplierDynamic> listSupplierDynamic);
+
 }

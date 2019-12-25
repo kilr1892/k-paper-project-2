@@ -1,8 +1,6 @@
 package cn.edu.zju.kpaperproject.controller;
 
-import cn.edu.zju.kpaperproject.dto.EngineFactoryManufacturingTask;
-import cn.edu.zju.kpaperproject.dto.SupplierTask;
-import cn.edu.zju.kpaperproject.dto.TransactionContract;
+import cn.edu.zju.kpaperproject.dto.*;
 import cn.edu.zju.kpaperproject.pojo.*;
 import cn.edu.zju.kpaperproject.service.BeforeNextTask;
 import cn.edu.zju.kpaperproject.service.InitService;
@@ -14,9 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * .
@@ -72,7 +68,12 @@ public class MainController {
 //            log.info("+++processTaskService.getTransactionContracts!!!!!");
 
             // 6 获取任务契约
-            ArrayList<TransactionContract> listTransactionContract = processTaskService.getTransactionContracts(listListEngineFactoryTaskDecomposition, listListSupplierTask, mapRelationshipMatrix,listEngineFactory);
+            ArrayList<TransactionContract> listTransactionContract = processTaskService.getTransactionContracts(listListEngineFactoryTaskDecomposition, listListSupplierTask, mapRelationshipMatrix, listEngineFactory);
+
+            // 生成供应商和主机厂的排序
+            Map<String, EngineFactoryRank> mapEngineFactoryIdVsRank = new LinkedHashMap<>(listEngineFactory.size());
+            Map<String, SupplierRank> mapSupplierIdVsRank = new LinkedHashMap<>(listSuppliers.size());
+            startTaskService.genMapEngineFactoryIdVsRankAndmapSupplierIdVsRank(mapEngineFactoryIdVsRank, mapSupplierIdVsRank, listEngineFactory, listEngineFactoryDynamic, listSuppliers, listSupplierDynamic);
 
 
 //            log.info("+++processTaskService.getTransactionSettlement!!!!!");

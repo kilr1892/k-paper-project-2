@@ -15,6 +15,14 @@ import java.util.Map;
  * @version v1.0
  */
 public interface BeforeNextTask {
+    Map<String, TbSupplierDynamic> getMapSupplierIdVsSupplierDynamic(List<TbSupplierDynamic> listSupplierDynamics);
+
+    Map<String, TbEngineFactoryDynamic> getMapEngineFactoryIdVsEngineFactoryDynamic(List<TbEngineFactoryDynamic> listEngineFactoryDynamic);
+
+    Map<String, TbSupplier> getMapSupplierIdVsSupplier(List<TbSupplier> listSupplier);
+
+    Map<String, TbEngineFactory> getMapEngineFactoryIdVsEngineFactory(List<TbEngineFactory> listEngineFactory);
+
     /**
      * 生成最终的交货结果
      *

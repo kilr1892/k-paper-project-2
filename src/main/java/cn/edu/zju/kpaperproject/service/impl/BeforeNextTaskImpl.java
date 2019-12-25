@@ -1076,7 +1076,8 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
      * @param listSupplierDynamics 供应商动态数据集合
      * @return 供应商id - 供应商对应的动态数据
      */
-    private Map<String, TbSupplierDynamic> getMapSupplierIdVsSupplierDynamic(List<TbSupplierDynamic> listSupplierDynamics) {
+    @Override
+    public Map<String, TbSupplierDynamic> getMapSupplierIdVsSupplierDynamic(List<TbSupplierDynamic> listSupplierDynamics) {
         Map<String, TbSupplierDynamic> mapEngineFactory = new HashMap<>(100);
         for (TbSupplierDynamic aSupplierDynamic : listSupplierDynamics) {
             String supplierId = aSupplierDynamic.getSupplierId();
@@ -1091,7 +1092,8 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
      * @param listEngineFactoryDynamic 主机厂动态数据集合
      * @return 主机厂id - 主机厂对应的动态数据
      */
-    private Map<String, TbEngineFactoryDynamic> getMapEngineFactoryIdVsEngineFactoryDynamic(List<TbEngineFactoryDynamic> listEngineFactoryDynamic) {
+    @Override
+    public Map<String, TbEngineFactoryDynamic> getMapEngineFactoryIdVsEngineFactoryDynamic(List<TbEngineFactoryDynamic> listEngineFactoryDynamic) {
         Map<String, TbEngineFactoryDynamic> mapEngineFactoryDynamic = new HashMap<>(100);
         for (TbEngineFactoryDynamic aEngineFactoryDynamic : listEngineFactoryDynamic) {
             String engineFactoryId = aEngineFactoryDynamic.getEngineFactoryId();
@@ -1106,7 +1108,8 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
      * @param listSupplier 供应商静态数据集合
      * @return 供应商id - 供应商静态数据
      */
-    private Map<String, TbSupplier> getMapSupplierIdVsSupplier(List<TbSupplier> listSupplier) {
+    @Override
+    public Map<String, TbSupplier> getMapSupplierIdVsSupplier(List<TbSupplier> listSupplier) {
         Map<String, TbSupplier> mapSupplier = new HashMap<>(100);
         for (TbSupplier aSupplier : listSupplier) {
             String supplierId = aSupplier.getSupplierId();
@@ -1121,7 +1124,8 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
      * @param listEngineFactory 主机厂静态数据集合
      * @return 主机厂id - 主机厂静态数据
      */
-    private Map<String, TbEngineFactory> getMapEngineFactoryIdVsEngineFactory(List<TbEngineFactory> listEngineFactory) {
+    @Override
+    public Map<String, TbEngineFactory> getMapEngineFactoryIdVsEngineFactory(List<TbEngineFactory> listEngineFactory) {
         Map<String, TbEngineFactory> mapEngineFactory = new HashMap<>(100);
         for (TbEngineFactory aEngineFactory : listEngineFactory) {
             String engineFactoryId = aEngineFactory.getEngineFactoryId();
