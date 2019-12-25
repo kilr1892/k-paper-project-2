@@ -7,6 +7,7 @@ import cn.edu.zju.kpaperproject.enums.CalculationEnum;
 import cn.edu.zju.kpaperproject.enums.NumberEnum;
 import cn.edu.zju.kpaperproject.mapper.OrderPlusMapper;
 import cn.edu.zju.kpaperproject.pojo.OrderPlus;
+import cn.edu.zju.kpaperproject.pojo.TbEngineFactory;
 import cn.edu.zju.kpaperproject.pojo.TbRelationMatrix;
 import cn.edu.zju.kpaperproject.service.ProcessTaskService;
 import cn.edu.zju.kpaperproject.utils.CalculationUtils;
@@ -219,7 +220,6 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
         }
         listEngineFactoryMatchSupplier.add(orderPlus);
         listSupplierMatchEngineFactory.add(orderPlus);
-        // TODO 稍微可以优化一下下
         mapEngineFactoryCredit.put(engineFactoryId, listEngineFactoryMatchSupplier);
         mapSupplierCredit.put(supplierId, listSupplierMatchEngineFactory);
     }
@@ -400,24 +400,32 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
 
     /**
      * 获取交易契约
+     * 粗/精匹配
      *
      * @param listListEngineFactoryTasks 按主机厂分的任务集合, 每个元素是一个主机厂集合(集合内元素是该主机厂的任务集)
      * @param listListSupplierTask       按任务分开后的供应商服务集合
      * @param mapRelationshipMatrix      关系强度
+     * @param listEngineFactory          活着的主机厂
      * @return 匹配上的主机厂与供应商的交易契约
      */
     @Override
     public ArrayList<TransactionContract> getTransactionContracts(
             ArrayList<ArrayList<EngineFactoryManufacturingTask>> listListEngineFactoryTasks
             , ArrayList<ArrayList<SupplierTask>> listListSupplierTask
-            , Map<String, Double> mapRelationshipMatrix) {
+            , Map<String, Double> mapRelationshipMatrix
+            , List<TbEngineFactory> listEngineFactory) {
 
         // 中间值__list中每个map元素代表一个厂的所有任务和最终匹配上的唯一供应商
         ArrayList<LinkedHashMap<EngineFactoryManufacturingTask, SupplierTask>> listMapEngineFactoryTaskVsSupplierTask = new ArrayList<>();
 
+        Map<String, ArrayList<ArrayList<SupplierTask>>> mapEngineFactoryIdVsListListSupplierTask = genMapEngineFactoryIdVsListListSupplierTask(listEngineFactory, listListSupplierTask);
+
+
         // 每个厂都经历这么几个步骤
         startEachEngineFactory:
-        for (ArrayList<EngineFactoryManufacturingTask> listEngineFactoryTask : listListEngineFactoryTasks) {
+        for (int i = 0; i < listListEngineFactoryTasks.size(); i++) {
+            ArrayList<EngineFactoryManufacturingTask> listEngineFactoryTask = listListEngineFactoryTasks.get(i);
+//        for (ArrayList<EngineFactoryManufacturingTask> listEngineFactoryTask : listListEngineFactoryTasks) {
             // 每个循环是一个主机厂的所有任务集合
 
             // LinkedHashMap<任务集合, 服务>
@@ -439,17 +447,30 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                 // 任务类型相同
                 int taskType = aEngineFactoryManufacturingTask.getTaskType();
                 // 初始对应的服务集合
-                ArrayList<SupplierTask> supplierTasks = getSupplierTasks(listListSupplierTask, taskType);
+                ArrayList<SupplierTask> supplierTasks = getSupplierTasks(mapEngineFactoryIdVsListListSupplierTask.get(aEngineFactoryManufacturingTask.getEngineFactoryId()), taskType);
+
+                // 最多能见到的供应商索引
+                int indexLimit;
+                if (i == 0) {
+                    indexLimit = supplierTasks.size();
+                } else if (i == listListEngineFactoryTasks.size() - 1) {
+                    // 最小的, 匹配1/3
+                    indexLimit = supplierTasks.size() / 3;
+                } else {
+                    // 中间的, 匹配2/3
+                    indexLimit = supplierTasks.size() * 2 / 3;
+                }
+
 
 
                 // ## 粗匹配( 用剩余产能 )
-                ArrayList<SupplierTask> listMatchingSupplierTasks = roughMatching(aEngineFactoryManufacturingTask, supplierTasks);
+                ArrayList<SupplierTask> listMatchingSupplierTasks = roughMatching(aEngineFactoryManufacturingTask, supplierTasks, indexLimit);
 
                 // ## 再匹配
                 // 粗匹配没匹配上, 就降低要求来匹配
                 if (listMatchingSupplierTasks.size() == 0) {
                     // 一个都没匹配上的, 再次匹配
-                    listMatchingSupplierTasks = reGenListMatchingSupplierTask(aEngineFactoryManufacturingTask, supplierTasks);
+                    listMatchingSupplierTasks = reGenListMatchingSupplierTask(aEngineFactoryManufacturingTask, supplierTasks, indexLimit);
 
                 }
                 // 如果此时还是没匹配上, 那么整个厂就不匹配了
@@ -537,13 +558,59 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
     }
 
     /**
+     * 生成的是所有的供应商新的任务分解, 已经按双方距离近远排序
+     *
+     * @param listEngineFactory    主机厂
+     * @param listListSupplierTask 供应商分解
+     * @return 主机厂对应的新的排序过的任务分解
+     */
+    private Map<String, ArrayList<ArrayList<SupplierTask>>> genMapEngineFactoryIdVsListListSupplierTask(List<TbEngineFactory> listEngineFactory, ArrayList<ArrayList<SupplierTask>> listListSupplierTask) {
+        Map<String, ArrayList<ArrayList<SupplierTask>>> mapEngineFactoryIdVsListListSupplierTask = new HashMap<>(20);
+        for (TbEngineFactory aEngineFactory : listEngineFactory) {
+            // 遍历每个主机厂
+
+            ArrayList<ArrayList<SupplierTask>> newListListSupplierTask = new ArrayList<>();
+
+            String engineFactoryId = aEngineFactory.getEngineFactoryId();
+            double[] engineFactoryPosition = {aEngineFactory.getEngineFactoryLocationGX(), aEngineFactory.getEngineFactoryLocationGY()};
+
+            for (ArrayList<SupplierTask> aListSupplierTasks : listListSupplierTask) {
+                // 每个循环是从201 - 205 5个集合
+
+                // 距离近的供应商
+                Map<Double, SupplierTask> mapDistanceVsSupplierTask = new TreeMap<>(((o1, o2) -> o1 - o2 >= 0 ? 1 : -1));
+
+                // 每个循环是类任务里的供应商
+                for (SupplierTask aSupplierTask : aListSupplierTasks) {
+                    // 算下距离
+                    double[] supplierLocationXY = aSupplierTask.getSupplierLocationXY();
+                    double v = CalculationUtils.calDistance(engineFactoryPosition, supplierLocationXY);
+                    mapDistanceVsSupplierTask.put(v, aSupplierTask);
+                }
+
+                // 按距离近远排序过的任务集合
+                ArrayList<SupplierTask> listSupplierTask = new ArrayList<>();
+                for (Map.Entry<Double, SupplierTask> entry : mapDistanceVsSupplierTask.entrySet()) {
+                    listSupplierTask.add(entry.getValue());
+                }
+                // 主机厂对应的任务集合 0 - 201,1 - 202 ...
+                newListListSupplierTask.add(listSupplierTask);
+
+            }
+            mapEngineFactoryIdVsListListSupplierTask.put(engineFactoryId, newListListSupplierTask);
+        }
+        return mapEngineFactoryIdVsListListSupplierTask;
+    }
+
+    /**
      * 粗匹配(服务剩余产能)
      *
      * @param engineFactoryManufacturingTask 主机厂任务
      * @param supplierTasks                  对应的所有服务集合
+     * @param indexLimit
      * @return 匹配结果集合(0, 1, > 1)
      */
-    private ArrayList<SupplierTask> roughMatching(EngineFactoryManufacturingTask engineFactoryManufacturingTask, ArrayList<SupplierTask> supplierTasks) {
+    private ArrayList<SupplierTask> roughMatching(EngineFactoryManufacturingTask engineFactoryManufacturingTask, ArrayList<SupplierTask> supplierTasks, int indexLimit) {
         ArrayList<SupplierTask> listMatchingSupplierTasks = new ArrayList<>();
 
         // 需求为0就不匹配
@@ -551,7 +618,9 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             return listMatchingSupplierTasks;
         }
         // 遍历所有类型相等的供应商
-        for (SupplierTask aSupplierTask : supplierTasks) {
+        for (int i = 0; i < indexLimit; i++) {
+            SupplierTask aSupplierTask = supplierTasks.get(i);
+//        for (SupplierTask aSupplierTask : supplierTasks) {
             // 任务期望质量<=服务质量
             if (engineFactoryManufacturingTask.getEngineFactoryExpectedQuality() <= aSupplierTask.getSupplierQuality()) {
                 // 两者期望价格有交集 或者 主机厂的价格下限大于供应商的价格上限
@@ -602,10 +671,10 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                 // ____需要存的交易契约模型
                 TransactionContract transactionContract = new TransactionContract();
                 transactionContract.setEngineFactoryId(engineFactoryManufacturingTask.getEngineFactoryId());
-                transactionContract.setEngineFactoryCredit(engineFactoryManufacturingTask.getEngineFactoryCredit());
+//                transactionContract.setEngineFactoryCredit(engineFactoryManufacturingTask.getEngineFactoryCredit());
                 transactionContract.setEngineFactoryLocationXY(engineFactoryManufacturingTask.getEngineFactoryLocationXY());
                 transactionContract.setSupplierId(supplierTask.getSupplierId());
-                transactionContract.setSupplierCredit(supplierTask.getSupplierCredit());
+//                transactionContract.setSupplierCredit(supplierTask.getSupplierCredit());
                 transactionContract.setSupplierLocationXY(supplierTask.getSupplierLocationXY());
                 transactionContract.setTaskType(engineFactoryManufacturingTask.getTaskType());
                 transactionContract.setEngineFactoryNeedServiceNumber(engineFactoryManufacturingTask.getEngineFactoryNeedServiceNumber());
@@ -654,9 +723,10 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
      *
      * @param engineFactoryManufacturingTask 主机厂单个任务
      * @param listSupplierTask               供应商对应任务类型的服务集合
+     * @param indexLimit
      * @return 供应商能匹配上的服务集合
      */
-    private ArrayList<SupplierTask> reGenListMatchingSupplierTask(EngineFactoryManufacturingTask engineFactoryManufacturingTask, ArrayList<SupplierTask> listSupplierTask) {
+    private ArrayList<SupplierTask> reGenListMatchingSupplierTask(EngineFactoryManufacturingTask engineFactoryManufacturingTask, ArrayList<SupplierTask> listSupplierTask, int indexLimit) {
         // 结果集
         ArrayList<SupplierTask> listRes = new ArrayList<>();
 
@@ -670,7 +740,9 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
 //            log.info("+++++++++++++++供应商任务分解为0");
 //        }
         // 用供应商集合
-        for (SupplierTask supplierTask : listSupplierTask) {
+        for (int i = 0; i < indexLimit; i++) {
+            SupplierTask supplierTask = listSupplierTask.get(i);
+//        for (SupplierTask supplierTask : listSupplierTask) {
             // 每个循环是供应商的能提供的任务
 
             // 任务需求量
@@ -724,7 +796,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
 //                           || engineFactoryManufacturingTask.getEngineFactory2ServiceOfferPrice()[NumberEnum.PRICE_LOW_ARRAY_INDEX]
 //                                >= supplierTask.getSupplierPriceRange()[NumberEnum.PRICE_UPPER_ARRAY_INDEX]) {
 
-                            if (CalculationUtils.whetherPriceIntersection(engineFactory2ServiceOfferPrice, supplierTask.getSupplierPriceRange())
+                        if (CalculationUtils.whetherPriceIntersection(engineFactory2ServiceOfferPrice, supplierTask.getSupplierPriceRange())
                                 || engineFactory2ServiceOfferPrice[NumberEnum.PRICE_LOW_ARRAY_INDEX]
                                 >= supplierTask.getSupplierPriceRange()[NumberEnum.PRICE_UPPER_ARRAY_INDEX]) {
 

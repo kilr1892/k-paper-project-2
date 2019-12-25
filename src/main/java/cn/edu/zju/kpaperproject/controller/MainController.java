@@ -51,7 +51,7 @@ public class MainController {
             log.info("  ");
             log.info("  ");
             // 1 获取所有存活的主机厂
-            List<TbEngineFactory> listEngineFactory = listEngineFactory = startTaskService.getListEngineFactoryWithAlive(experimentsNumber, cycleTime);
+            List<TbEngineFactory> listEngineFactory = startTaskService.getListEngineFactoryWithAlive(experimentsNumber, cycleTime);
 
             List<TbEngineFactoryDynamic> listEngineFactoryDynamic = new ArrayList<>();
 
@@ -71,8 +71,8 @@ public class MainController {
             Map<String, TbRelationMatrix> mapRelationshipMatrix2WithTbRelationMatrix = startTaskService.getMapRelationshipMatrix2WithTbRelationMatrix(experimentsNumber, cycleTime);
 //            log.info("+++processTaskService.getTransactionContracts!!!!!");
 
-            // 6
-            ArrayList<TransactionContract> listTransactionContract = processTaskService.getTransactionContracts(listListEngineFactoryTaskDecomposition, listListSupplierTask, mapRelationshipMatrix);
+            // 6 获取任务契约
+            ArrayList<TransactionContract> listTransactionContract = processTaskService.getTransactionContracts(listListEngineFactoryTaskDecomposition, listListSupplierTask, mapRelationshipMatrix,listEngineFactory);
 
 
 //            log.info("+++processTaskService.getTransactionSettlement!!!!!");

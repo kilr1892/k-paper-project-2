@@ -2,12 +2,9 @@ package cn.edu.zju.kpaperproject.mapper;
 
 import cn.edu.zju.kpaperproject.pojo.OrderPlus;
 import cn.edu.zju.kpaperproject.pojo.OrderPlusExample;
-import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
-@Repository
 public interface OrderPlusMapper {
     int countByExample(OrderPlusExample example);
 

@@ -29,17 +29,9 @@ public class OrderPlus {
 
     private Integer supplierToEngineFactoryScore;
 
-    private Double engineFactoryInitCredit;
-
-    private Double engineFactoryNewCredit;
-
     private Integer engineFactoryToServiceOfferPriceLow;
 
     private Integer engineFactoryToServiceOfferPriceUpper;
-
-    private Double supplierInitCredit;
-
-    private Double supplierNewCredit;
 
     private Double relationshipStrength;
 
@@ -159,22 +151,6 @@ public class OrderPlus {
         this.supplierToEngineFactoryScore = supplierToEngineFactoryScore;
     }
 
-    public Double getEngineFactoryInitCredit() {
-        return engineFactoryInitCredit;
-    }
-
-    public void setEngineFactoryInitCredit(Double engineFactoryInitCredit) {
-        this.engineFactoryInitCredit = engineFactoryInitCredit;
-    }
-
-    public Double getEngineFactoryNewCredit() {
-        return engineFactoryNewCredit;
-    }
-
-    public void setEngineFactoryNewCredit(Double engineFactoryNewCredit) {
-        this.engineFactoryNewCredit = engineFactoryNewCredit;
-    }
-
     public Integer getEngineFactoryToServiceOfferPriceLow() {
         return engineFactoryToServiceOfferPriceLow;
     }
@@ -189,22 +165,6 @@ public class OrderPlus {
 
     public void setEngineFactoryToServiceOfferPriceUpper(Integer engineFactoryToServiceOfferPriceUpper) {
         this.engineFactoryToServiceOfferPriceUpper = engineFactoryToServiceOfferPriceUpper;
-    }
-
-    public Double getSupplierInitCredit() {
-        return supplierInitCredit;
-    }
-
-    public void setSupplierInitCredit(Double supplierInitCredit) {
-        this.supplierInitCredit = supplierInitCredit;
-    }
-
-    public Double getSupplierNewCredit() {
-        return supplierNewCredit;
-    }
-
-    public void setSupplierNewCredit(Double supplierNewCredit) {
-        this.supplierNewCredit = supplierNewCredit;
     }
 
     public Double getRelationshipStrength() {

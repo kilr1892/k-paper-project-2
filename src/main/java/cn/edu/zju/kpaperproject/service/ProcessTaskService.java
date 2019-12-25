@@ -4,6 +4,7 @@ import cn.edu.zju.kpaperproject.dto.EngineFactoryManufacturingTask;
 import cn.edu.zju.kpaperproject.dto.SupplierTask;
 import cn.edu.zju.kpaperproject.dto.TransactionContract;
 import cn.edu.zju.kpaperproject.pojo.OrderPlus;
+import cn.edu.zju.kpaperproject.pojo.TbEngineFactory;
 import cn.edu.zju.kpaperproject.pojo.TbRelationMatrix;
 
 import java.util.ArrayList;
@@ -23,12 +24,13 @@ public interface ProcessTaskService {
      * @param listListEngineFactoryTasks 按主机厂分的任务集合, 每个元素是一个主机厂集合(集合内元素是该主机厂的任务集)
      * @param listListSupplierTask       按任务分开后的供应商服务集合
      * @param mapRelationshipMatrix      关系强度
+     * @param listEngineFactory          活着的主机厂
      * @return 匹配上的主机厂与供应商的交易契约
      */
     ArrayList<TransactionContract> getTransactionContracts(
             ArrayList<ArrayList<EngineFactoryManufacturingTask>> listListEngineFactoryTasks
             , ArrayList<ArrayList<SupplierTask>> listListSupplierTask
-            , Map<String, Double> mapRelationshipMatrix);
+            , Map<String, Double> mapRelationshipMatrix, List<TbEngineFactory> listEngineFactory);
 
     /**
      * 交易结算
