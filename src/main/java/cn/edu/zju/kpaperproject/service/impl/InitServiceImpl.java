@@ -212,7 +212,7 @@ public class InitServiceImpl implements InitService {
                 double initRelationshipStrengthScore = InitRelationMatrixUtils.initRelationshipStrengthScore();
                 tbRelationMatrix.setRelationScore(initRelationshipStrengthScore);
                 tbRelationMatrix.setInitialRelationalDegree(initRelationshipStrengthScore);
-                tbRelationMatrix.setAccumulativeTotalScore(0);
+                tbRelationMatrix.setAccumulativeTotalScore(0d);
                 tbRelationMatrix.setTransactionNumber(0);
 //                tbRelationMatrix.setRelationMatrixAlive(true);
                 // 插入数据库

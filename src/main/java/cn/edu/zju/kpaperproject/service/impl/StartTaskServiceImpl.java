@@ -351,7 +351,7 @@ public class StartTaskServiceImpl implements StartTaskService {
         res.sort((o1, o2) -> {
             double diff = o2.get(0).getEngineFactoryTotalAssets() - o1.get(0).getEngineFactoryTotalAssets();
             if (diff != 0) {
-                // 先按信誉度排
+                // 按总资产高的排分解任务
                 return diff > 0 ? 1 : -1;
             } else {
                 // 信誉度相等, 按出价高的排

@@ -14,8 +14,6 @@
     <result column="supplier_actual_price_p" property="supplierActualPriceP" jdbcType="INTEGER" />
     <result column="supplier_actual_quality_qs" property="supplierActualQualityQs" jdbcType="INTEGER" />
     <result column="supplier_actual_number_m" property="supplierActualNumberM" jdbcType="INTEGER" />
-    <result column="engine_factory_to_supplier_score" property="engineFactoryToSupplierScore" jdbcType="INTEGER" />
-    <result column="supplier_to_engine_factory_score" property="supplierToEngineFactoryScore" jdbcType="INTEGER" />
     <result column="engine_factory_to_service_offer_price_low" property="engineFactoryToServiceOfferPriceLow" jdbcType="INTEGER" />
     <result column="engine_factory_to_service_offer_price_upper" property="engineFactoryToServiceOfferPriceUpper" jdbcType="INTEGER" />
     <result column="relationship_strength" property="relationshipStrength" jdbcType="DOUBLE" />
@@ -83,9 +81,9 @@
   <sql id="Base_Column_List" >
     id, experiments_number, cycle_times, engine_factory_id, supplier_id, engine_to_supplier_ap, 
     supplier_engine_to_ap, engine_whether_perform_contract, supplier_whether_perform_contract, 
-    supplier_actual_price_p, supplier_actual_quality_qs, supplier_actual_number_m, engine_factory_to_supplier_score, 
-    supplier_to_engine_factory_score, engine_factory_to_service_offer_price_low, engine_factory_to_service_offer_price_upper, 
-    relationship_strength, engine_factory_profit, supplier_profit
+    supplier_actual_price_p, supplier_actual_quality_qs, supplier_actual_number_m, engine_factory_to_service_offer_price_low, 
+    engine_factory_to_service_offer_price_upper, relationship_strength, engine_factory_profit, 
+    supplier_profit
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="cn.edu.zju.kpaperproject.pojo.OrderPlusExample" >
     select
@@ -123,7 +121,6 @@
       supplier_engine_to_ap, engine_whether_perform_contract, 
       supplier_whether_perform_contract, supplier_actual_price_p, 
       supplier_actual_quality_qs, supplier_actual_number_m, 
-      engine_factory_to_supplier_score, supplier_to_engine_factory_score, 
       engine_factory_to_service_offer_price_low, engine_factory_to_service_offer_price_upper, 
       relationship_strength, engine_factory_profit, 
       supplier_profit)
@@ -132,7 +129,6 @@
       #{supplierEngineToAp,jdbcType=DOUBLE}, #{engineWhetherPerformContract,jdbcType=BIT}, 
       #{supplierWhetherPerformContract,jdbcType=BIT}, #{supplierActualPriceP,jdbcType=INTEGER}, 
       #{supplierActualQualityQs,jdbcType=INTEGER}, #{supplierActualNumberM,jdbcType=INTEGER}, 
-      #{engineFactoryToSupplierScore,jdbcType=INTEGER}, #{supplierToEngineFactoryScore,jdbcType=INTEGER}, 
       #{engineFactoryToServiceOfferPriceLow,jdbcType=INTEGER}, #{engineFactoryToServiceOfferPriceUpper,jdbcType=INTEGER}, 
       #{relationshipStrength,jdbcType=DOUBLE}, #{engineFactoryProfit,jdbcType=INTEGER}, 
       #{supplierProfit,jdbcType=INTEGER})
@@ -175,12 +171,6 @@
       </if>
       <if test="supplierActualNumberM != null" >
         supplier_actual_number_m,
-      </if>
-      <if test="engineFactoryToSupplierScore != null" >
-        engine_factory_to_supplier_score,
-      </if>
-      <if test="supplierToEngineFactoryScore != null" >
-        supplier_to_engine_factory_score,
       </if>
       <if test="engineFactoryToServiceOfferPriceLow != null" >
         engine_factory_to_service_offer_price_low,
@@ -234,12 +224,6 @@
       </if>
       <if test="supplierActualNumberM != null" >
         #{supplierActualNumberM,jdbcType=INTEGER},
-      </if>
-      <if test="engineFactoryToSupplierScore != null" >
-        #{engineFactoryToSupplierScore,jdbcType=INTEGER},
-      </if>
-      <if test="supplierToEngineFactoryScore != null" >
-        #{supplierToEngineFactoryScore,jdbcType=INTEGER},
       </if>
       <if test="engineFactoryToServiceOfferPriceLow != null" >
         #{engineFactoryToServiceOfferPriceLow,jdbcType=INTEGER},
@@ -303,12 +287,6 @@
       <if test="record.supplierActualNumberM != null" >
         supplier_actual_number_m = #{record.supplierActualNumberM,jdbcType=INTEGER},
       </if>
-      <if test="record.engineFactoryToSupplierScore != null" >
-        engine_factory_to_supplier_score = #{record.engineFactoryToSupplierScore,jdbcType=INTEGER},
-      </if>
-      <if test="record.supplierToEngineFactoryScore != null" >
-        supplier_to_engine_factory_score = #{record.supplierToEngineFactoryScore,jdbcType=INTEGER},
-      </if>
       <if test="record.engineFactoryToServiceOfferPriceLow != null" >
         engine_factory_to_service_offer_price_low = #{record.engineFactoryToServiceOfferPriceLow,jdbcType=INTEGER},
       </if>
@@ -343,8 +321,6 @@
       supplier_actual_price_p = #{record.supplierActualPriceP,jdbcType=INTEGER},
       supplier_actual_quality_qs = #{record.supplierActualQualityQs,jdbcType=INTEGER},
       supplier_actual_number_m = #{record.supplierActualNumberM,jdbcType=INTEGER},
-      engine_factory_to_supplier_score = #{record.engineFactoryToSupplierScore,jdbcType=INTEGER},
-      supplier_to_engine_factory_score = #{record.supplierToEngineFactoryScore,jdbcType=INTEGER},
       engine_factory_to_service_offer_price_low = #{record.engineFactoryToServiceOfferPriceLow,jdbcType=INTEGER},
       engine_factory_to_service_offer_price_upper = #{record.engineFactoryToServiceOfferPriceUpper,jdbcType=INTEGER},
       relationship_strength = #{record.relationshipStrength,jdbcType=DOUBLE},
@@ -390,12 +366,6 @@
       <if test="supplierActualNumberM != null" >
         supplier_actual_number_m = #{supplierActualNumberM,jdbcType=INTEGER},
       </if>
-      <if test="engineFactoryToSupplierScore != null" >
-        engine_factory_to_supplier_score = #{engineFactoryToSupplierScore,jdbcType=INTEGER},
-      </if>
-      <if test="supplierToEngineFactoryScore != null" >
-        supplier_to_engine_factory_score = #{supplierToEngineFactoryScore,jdbcType=INTEGER},
-      </if>
       <if test="engineFactoryToServiceOfferPriceLow != null" >
         engine_factory_to_service_offer_price_low = #{engineFactoryToServiceOfferPriceLow,jdbcType=INTEGER},
       </if>
@@ -427,8 +397,6 @@
       supplier_actual_price_p = #{supplierActualPriceP,jdbcType=INTEGER},
       supplier_actual_quality_qs = #{supplierActualQualityQs,jdbcType=INTEGER},
       supplier_actual_number_m = #{supplierActualNumberM,jdbcType=INTEGER},
-      engine_factory_to_supplier_score = #{engineFactoryToSupplierScore,jdbcType=INTEGER},
-      supplier_to_engine_factory_score = #{supplierToEngineFactoryScore,jdbcType=INTEGER},
       engine_factory_to_service_offer_price_low = #{engineFactoryToServiceOfferPriceLow,jdbcType=INTEGER},
       engine_factory_to_service_offer_price_upper = #{engineFactoryToServiceOfferPriceUpper,jdbcType=INTEGER},
       relationship_strength = #{relationshipStrength,jdbcType=DOUBLE},
@@ -439,13 +407,16 @@
 
 
 
+
+
+
+
   <insert id="insertList" parameterType="list">
     insert into order_plus (id, experiments_number, cycle_times,
     engine_factory_id, supplier_id, engine_to_supplier_ap,
     supplier_engine_to_ap, engine_whether_perform_contract,
     supplier_whether_perform_contract, supplier_actual_price_p,
     supplier_actual_quality_qs, supplier_actual_number_m,
-    engine_factory_to_supplier_score, supplier_to_engine_factory_score,
     engine_factory_to_service_offer_price_low, engine_factory_to_service_offer_price_upper,
     relationship_strength, engine_factory_profit,
     supplier_profit)
@@ -457,10 +428,9 @@
       #{item.supplierEngineToAp,jdbcType=DOUBLE}, #{item.engineWhetherPerformContract,jdbcType=BIT},
       #{item.supplierWhetherPerformContract,jdbcType=BIT}, #{item.supplierActualPriceP,jdbcType=INTEGER},
       #{item.supplierActualQualityQs,jdbcType=INTEGER}, #{item.supplierActualNumberM,jdbcType=INTEGER},
-      #{item.engineFactoryToSupplierScore,jdbcType=INTEGER}, #{item.supplierToEngineFactoryScore,jdbcType=INTEGER},
       #{item.engineFactoryToServiceOfferPriceLow,jdbcType=INTEGER}, #{item.engineFactoryToServiceOfferPriceUpper,jdbcType=INTEGER},
-      #{item.relationshipStrength,jdbcType=DOUBLE},
-      #{item.engineFactoryProfit,jdbcType=INTEGER}, #{item.supplierProfit,jdbcType=INTEGER})
+      #{item.relationshipStrength,jdbcType=DOUBLE}, #{item.engineFactoryProfit,jdbcType=INTEGER},
+      #{item.supplierProfit,jdbcType=INTEGER})
     </foreach>
   </insert>
 </mapper>

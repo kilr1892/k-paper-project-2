@@ -30,8 +30,6 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
     @Autowired
     private OrderPlusMapper orderPlusMapper;
 
-    @Autowired
-    private BeforeNextTask beforeNextTask;
 
     /**
      * 交易结算
@@ -59,11 +57,6 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
         // 主机厂和供应商的履约概率
         double engineFactoryPerformanceProbability;
         double supplierPerformanceProbability;
-        // 信誉度计算相关的map
-        // 主机厂的
-//        Map<String, List<OrderPlus>> mapEngineFactoryCredit = new HashMap<>(100);
-        // 供应商的
-//        Map<String, List<OrderPlus>> mapSupplierCredit = new HashMap<>(100);
 
         for (TransactionContract aTransactionContract : listTransactionContracts) {
             // 每次循环是每个交易契约
@@ -98,16 +91,11 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             int actualTransactionsNumber = getActualTransactionsNumber(aTransactionContract.getEngineFactoryNeedServiceNumber(), performanceProbability, whetherPerformContract);
             orderPlus.setSupplierActualNumberM(actualTransactionsNumber);
 
-            // 双方评分
-//            int[] evaluationScore = getEvaluationScore(whetherPerformContract);
-//            orderPlus.setEngineFactoryToSupplierScore(evaluationScore[1]);
-//            orderPlus.setSupplierToEngineFacto ryScore(evaluationScore[0]);
-
 
             // 计算新的关系强度
             double newRelationshipStrength = getNewRelationshipStrength(aTransactionContract, actualTransactionsNumber, whetherPerformContract, mapRelationshipMatrix2WithTbRelationMatrix);
             orderPlus.setRelationshipStrength(newRelationshipStrength);
-            orderPlus.setRelationshipStrength(newRelationshipStrength);
+//            orderPlus.setRelationshipStrength(newRelationshipStrength);
 
             // 计算利润
             int[] profit = getProfit(aTransactionContract, whetherPerformContract, actualTransactionsNumber, mapEngineFactoryIdVsRank, mapSupplierIdVsRank);
@@ -123,30 +111,6 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
         return listOrderPlus;
     }
 
-    /**
-     * 把信誉度计算相关的map放进来
-     *
-     * @param orderPlus              成交结束相关的模型
-     * @param mapEngineFactoryCredit key: 主机厂id value: 匹配上的供应商集合
-     * @param mapSupplierCredit      key: 供应商id value: 匹配上的主机厂
-     */
-    private void addMapForCredit(OrderPlus orderPlus, Map<String, List<OrderPlus>> mapEngineFactoryCredit, Map<String, List<OrderPlus>> mapSupplierCredit) {
-        // 双方id
-        String engineFactoryId = orderPlus.getEngineFactoryId();
-        String supplierId = orderPlus.getSupplierId();
-        List<OrderPlus> listEngineFactoryMatchSupplier = mapEngineFactoryCredit.get(engineFactoryId);
-        List<OrderPlus> listSupplierMatchEngineFactory = mapEngineFactoryCredit.get(supplierId);
-        if (listEngineFactoryMatchSupplier == null) {
-            listEngineFactoryMatchSupplier = new ArrayList<>();
-        }
-        if (listSupplierMatchEngineFactory == null) {
-            listSupplierMatchEngineFactory = new ArrayList<>();
-        }
-        listEngineFactoryMatchSupplier.add(orderPlus);
-        listSupplierMatchEngineFactory.add(orderPlus);
-        mapEngineFactoryCredit.put(engineFactoryId, listEngineFactoryMatchSupplier);
-        mapSupplierCredit.put(supplierId, listSupplierMatchEngineFactory);
-    }
 
     /**
      * 计算双方利润
@@ -174,7 +138,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             sCi = 1;
         }
         String supplierId = transactionContract.getSupplierId();
-        SupplierRank supplierRank = mapSupplierIdVsRank.get(engineFactoryId);
+        SupplierRank supplierRank = mapSupplierIdVsRank.get(supplierId);
         int sCjk;
         if (supplierRank.getRankNumber() < supplierRank.getListSize() * 0.5) {
             // 前50%, 规模较大
@@ -460,7 +424,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                 // 供应商剩余产能
                 int supplierRestCapacity;
                 // 按服务数量匹配
-                if (listMatchingSupplierTasks.size() == 1) {
+                 if (listMatchingSupplierTasks.size() == 1) {
                     // 主机厂任务数量匹配到的服务 == 1
                     // 供应商
                     supplierTask = listMatchingSupplierTasks.get(0);
@@ -485,7 +449,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                     // 主机厂任务数量匹配到的服务 > 1
 
                     // 每个任务都new一个暂存结果的有序集合(key大的排前面)
-                    TreeMap<Double, SupplierTask> mapTmp = new TreeMap<>(((o1, o2) -> o2 - o1 > 0 ? 1 : 0));
+                    TreeMap<Double, SupplierTask> mapTmp = new TreeMap<>(((o1, o2) -> o2 - o1 >= 0 ? 1 : -1));
                     // 循环计算匹配度, 高的存入
                     for (SupplierTask task : listMatchingSupplierTasks) {
                         double matchingDegree = CalculationUtils.calMatchingDegree(aEngineFactoryManufacturingTask, task, mapRelationshipMatrix);
@@ -536,7 +500,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
      * @return 主机厂对应的新的排序过的任务分解
      */
     private Map<String, ArrayList<ArrayList<SupplierTask>>> genMapEngineFactoryIdVsListListSupplierTask(List<TbEngineFactory> listEngineFactory, ArrayList<ArrayList<SupplierTask>> listListSupplierTask) {
-        Map<String, ArrayList<ArrayList<SupplierTask>>> mapEngineFactoryIdVsListListSupplierTask = new HashMap<>(20);
+        Map<String, ArrayList<ArrayList<SupplierTask>>> mapEngineFactoryIdVsListListSupplierTask = new HashMap<>(50);
         for (TbEngineFactory aEngineFactory : listEngineFactory) {
             // 遍历每个主机厂
 

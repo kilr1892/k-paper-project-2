@@ -25,10 +25,6 @@ public class OrderPlus {
 
     private Integer supplierActualNumberM;
 
-    private Integer engineFactoryToSupplierScore;
-
-    private Integer supplierToEngineFactoryScore;
-
     private Integer engineFactoryToServiceOfferPriceLow;
 
     private Integer engineFactoryToServiceOfferPriceUpper;
@@ -133,22 +129,6 @@ public class OrderPlus {
 
     public void setSupplierActualNumberM(Integer supplierActualNumberM) {
         this.supplierActualNumberM = supplierActualNumberM;
-    }
-
-    public Integer getEngineFactoryToSupplierScore() {
-        return engineFactoryToSupplierScore;
-    }
-
-    public void setEngineFactoryToSupplierScore(Integer engineFactoryToSupplierScore) {
-        this.engineFactoryToSupplierScore = engineFactoryToSupplierScore;
-    }
-
-    public Integer getSupplierToEngineFactoryScore() {
-        return supplierToEngineFactoryScore;
-    }
-
-    public void setSupplierToEngineFactoryScore(Integer supplierToEngineFactoryScore) {
-        this.supplierToEngineFactoryScore = supplierToEngineFactoryScore;
     }
 
     public Integer getEngineFactoryToServiceOfferPriceLow() {

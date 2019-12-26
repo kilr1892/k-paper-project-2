@@ -67,21 +67,42 @@ public class MainController {
             Map<String, TbRelationMatrix> mapRelationshipMatrix2WithTbRelationMatrix = startTaskService.getMapRelationshipMatrix2WithTbRelationMatrix(experimentsNumber, cycleTime);
 //            log.info("+++processTaskService.getTransactionContracts!!!!!");
 
+
+//            Map<String, TbEngineFactory> mapEngineFactory = beforeNextTask.getMapEngineFactoryIdVsEngineFactory(listEngineFactory);
+//            Map<String, TbSupplier> mapSupplier = beforeNextTask.getMapSupplierIdVsSupplier(listSuppliers);
+//
+//            Map<String, TbEngineFactoryDynamic> mapEngineFactoryDynamic = beforeNextTask.getMapEngineFactoryIdVsEngineFactoryDynamic(listEngineFactoryDynamic);
+//            Map<String, TbSupplierDynamic> mapSupplierDynamic = beforeNextTask.getMapSupplierIdVsSupplierDynamic(listSupplierDynamic);
+
             // 6 获取任务契约
             ArrayList<TransactionContract> listTransactionContract = processTaskService.getTransactionContracts(listListEngineFactoryTaskDecomposition, listListSupplierTask, mapRelationshipMatrix, listEngineFactory);
+
+
+
 
             // 生成供应商和主机厂的排序
             Map<String, EngineFactoryRank> mapEngineFactoryIdVsRank = new LinkedHashMap<>(listEngineFactory.size());
             Map<String, SupplierRank> mapSupplierIdVsRank = new LinkedHashMap<>(listSuppliers.size());
+
+
+            // listEngineFactoryDynamic排过序的
             startTaskService.genMapEngineFactoryIdVsRankAndmapSupplierIdVsRank(mapEngineFactoryIdVsRank, mapSupplierIdVsRank, listEngineFactory, listEngineFactoryDynamic, listSuppliers, listSupplierDynamic);
 
 
+
+
 //            log.info("+++processTaskService.getTransactionSettlement!!!!!");
+            // 7 最终生成数量
             List<OrderPlus> listOrderPlus = processTaskService.getTransactionSettlement(experimentsNumber, cycleTime, listTransactionContract, mapRelationshipMatrix, mapRelationshipMatrix2WithTbRelationMatrix, mapEngineFactoryIdVsRank, mapSupplierIdVsRank);
 //            log.info("+++beforeNextTask.getListEngineFactoryFinalProvision!!!!!!");
+            // 8 与市场交易结果
             List<EngineFactoryFinalProvision> listEngineFactoryFinalProvision = beforeNextTask.getListEngineFactoryFinalProvision(experimentsNumber, cycleTime, listOrderPlus);
 //            log.info("+++beforeNextTask.beforeNextTask!!!!!");
-            beforeNextTask.beforeNextTask(experimentsNumber, cycleTime, listEngineFactoryFinalProvision, listOrderPlus, listTransactionContract, listEngineFactory, listEngineFactoryDynamic, listSuppliers, listSupplierDynamic, mapRelationshipMatrix2WithTbRelationMatrix,listListEngineFactoryTaskDecomposition);
+            // 9 调整产能及进入退出
+            beforeNextTask.beforeNextTask(
+                    experimentsNumber, cycleTime, listEngineFactoryFinalProvision, listOrderPlus, listTransactionContract
+                    , listEngineFactory, listEngineFactoryDynamic, listSuppliers, listSupplierDynamic
+                    , mapRelationshipMatrix2WithTbRelationMatrix, listListEngineFactoryTaskDecomposition);
 
             cycleTime++;
         }

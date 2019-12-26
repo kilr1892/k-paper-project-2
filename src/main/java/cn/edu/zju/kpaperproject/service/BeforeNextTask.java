@@ -1,6 +1,8 @@
 package cn.edu.zju.kpaperproject.service;
 
 import cn.edu.zju.kpaperproject.dto.EngineFactoryManufacturingTask;
+import cn.edu.zju.kpaperproject.dto.EngineFactoryRank;
+import cn.edu.zju.kpaperproject.dto.SupplierRank;
 import cn.edu.zju.kpaperproject.dto.TransactionContract;
 import cn.edu.zju.kpaperproject.pojo.*;
 
@@ -43,8 +45,7 @@ public interface BeforeNextTask {
      * // 双方信誉度归一化
      * <p>
      * 对主机厂动态数据及服务商动态数据重算
-     *
-     * @param experimentsNumber                          实验次数
+     *  @param experimentsNumber                          实验次数
      * @param cycleTime                                  循环次数
      * @param listEngineFactoryFinalProvisions           最终交货结果集合
      * @param listOrderPlus                              实际交易结果集合
@@ -55,6 +56,8 @@ public interface BeforeNextTask {
      * @param listSupplierDynamics                       所有存活服务商动态数据集合
      * @param mapRelationshipMatrix2WithTbRelationMatrix 关系矩阵
      * @param listListEngineFactoryTaskDecomposition     主机厂发布任务量
+     * @param mapEngineFactoryIdVsRank
+     * @param mapSupplierIdVsRank
      */
     void beforeNextTask(
             int experimentsNumber
@@ -67,5 +70,6 @@ public interface BeforeNextTask {
             , List<TbSupplier> listSupplier
             , List<TbSupplierDynamic> listSupplierDynamics
             , Map<String, TbRelationMatrix> mapRelationshipMatrix2WithTbRelationMatrix
-            , ArrayList<ArrayList<EngineFactoryManufacturingTask>> listListEngineFactoryTaskDecomposition);
+            , ArrayList<ArrayList<EngineFactoryManufacturingTask>> listListEngineFactoryTaskDecomposition
+            );
 }
