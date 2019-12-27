@@ -388,23 +388,24 @@
   </update>
 
 
+
+
+
   <insert id="insertList" parameterType="java.util.List">
     insert into tb_supplier_dynamic (id, experiments_number, cycle_times,
-    supplier_id, supplier_total_assets_p,
-    supplier_capacity_m, supplier_price_p_l, supplier_price_p_u,
-    supplier_quality_qs, supplier_capacity_utilization,
-    supplier_type, avg_price, avg_quality,
-    supplier_innovation_probability,
+    supplier_id, supplier_total_assets_p, supplier_capacity_m,
+    supplier_price_p_l, supplier_price_p_u, supplier_quality_qs,
+    supplier_capacity_utilization, supplier_type,
+    avg_price, avg_quality, supplier_innovation_probability,
     supplier_whether_innovation, supplier_innovation_times
     )
     VALUES
     <foreach collection="list" item="item" index="index" separator=",">
       (NULL, #{item.experimentsNumber,jdbcType=INTEGER}, #{item.cycleTimes,jdbcType=INTEGER},
-      #{item.supplierId,jdbcType=VARCHAR}, #{item.supplierTotalAssetsP,jdbcType=INTEGER},
-      #{item.supplierCapacityM,jdbcType=INTEGER}, #{item.supplierPricePL,jdbcType=INTEGER}, #{item.supplierPricePU,jdbcType=INTEGER},
-      #{item.supplierQualityQs,jdbcType=INTEGER}, #{item.supplierCapacityUtilization,jdbcType=DOUBLE},
-      #{item.supplierType,jdbcType=INTEGER}, #{item.avgPrice,jdbcType=INTEGER}, #{item.avgQuality,jdbcType=INTEGER},
-      #{item.supplierInnovationProbability,jdbcType=DOUBLE},
+      #{item.supplierId,jdbcType=VARCHAR}, #{item.supplierTotalAssetsP,jdbcType=INTEGER}, #{item.supplierCapacityM,jdbcType=INTEGER},
+      #{item.supplierPricePL,jdbcType=INTEGER}, #{item.supplierPricePU,jdbcType=INTEGER}, #{item.supplierQualityQs,jdbcType=INTEGER},
+      #{item.supplierCapacityUtilization,jdbcType=DOUBLE}, #{item.supplierType,jdbcType=INTEGER},
+      #{item.avgPrice,jdbcType=INTEGER}, #{item.avgQuality,jdbcType=INTEGER}, #{item.supplierInnovationProbability,jdbcType=DOUBLE},
       #{item.supplierWhetherInnovation,jdbcType=BIT}, #{item.supplierInnovationTimes,jdbcType=INTEGER}
       )
     </foreach>

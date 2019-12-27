@@ -105,6 +105,13 @@ public class CalculationUtils {
         // 价格长度
         int absEngineFactoryPrice = calAbsEnginePrice(engineFactoryManufacturingTask);
         int absEnginePrice = calAbsEnginePrice(supplierTask);
+        if ((absEngineFactoryPrice + absEnginePrice) == 0) {
+            log.error("");
+            log.error("absEngineFactoryPrice   " + absEngineFactoryPrice);
+            log.error("absEnginePrice  " + absEnginePrice);
+            log.error("(absEngineFactoryPrice + absEnginePrice) 的值是0");
+            log.error("");
+        }
         double tmp2 = b3slash * (tmp2Molecular) / (absEngineFactoryPrice + absEnginePrice);
 
         // 供应商质量 - 主机厂质量

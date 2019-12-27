@@ -364,22 +364,20 @@
   <insert id="insertList" parameterType="java.util.List">
     INSERT INTO tb_engine_factory_dynamic (id, experiments_number, cycle_times,
     engine_factory_id, engine_factory_total_assets_p,
-    engine_factory_credit_h,
-    engine_factory_price_p_l, engine_factory_price_p_u,
-    engine_factory_quality_q, engine_factory_demand_forecast_d,
-    engine_factory_capacity_utilization, engine_factory_innovation_probability,
-    engine_factory_whether_innovation, engine_factory_innovation_times
-    )
+    engine_factory_capacity_m, engine_factory_price_p_l,
+    engine_factory_price_p_u, engine_factory_quality_q,
+    engine_factory_demand_forecast_d, engine_factory_capacity_utilization,
+    engine_factory_innovation_probability, engine_factory_whether_innovation,
+    engine_factory_innovation_times)
     VALUES
     <foreach collection="list" item="item" index="index" separator=",">
-      (NULL,  #{item.experimentsNumber,jdbcType=INTEGER}, #{item.cycleTimes,jdbcType=INTEGER},
+      (NULL, #{item.experimentsNumber,jdbcType=INTEGER}, #{item.cycleTimes,jdbcType=INTEGER},
       #{item.engineFactoryId,jdbcType=VARCHAR}, #{item.engineFactoryTotalAssetsP,jdbcType=INTEGER},
-      #{item.engineFactoryCapacityM,jdbcType=INTEGER},
-      #{item.engineFactoryPricePL,jdbcType=INTEGER}, #{item.engineFactoryPricePU,jdbcType=INTEGER},
-      #{item.engineFactoryQualityQ,jdbcType=INTEGER}, #{item.engineFactoryDemandForecastD,jdbcType=INTEGER},
-      #{item.engineFactoryCapacityUtilization,jdbcType=DOUBLE}, #{item.engineFactoryInnovationProbability,jdbcType=DOUBLE},
-      #{item.engineFactoryWhetherInnovation,jdbcType=BIT}, #{item.engineFactoryInnovationTimes,jdbcType=INTEGER}
-      )
+      #{item.engineFactoryCapacityM,jdbcType=INTEGER}, #{item.engineFactoryPricePL,jdbcType=INTEGER},
+      #{item.engineFactoryPricePU,jdbcType=INTEGER}, #{item.engineFactoryQualityQ,jdbcType=INTEGER},
+      #{item.engineFactoryDemandForecastD,jdbcType=INTEGER}, #{item.engineFactoryCapacityUtilization,jdbcType=DOUBLE},
+      #{item.engineFactoryInnovationProbability,jdbcType=DOUBLE}, #{item.engineFactoryWhetherInnovation,jdbcType=BIT},
+      #{item.engineFactoryInnovationTimes,jdbcType=INTEGER})
     </foreach>
   </insert>
 </mapper>

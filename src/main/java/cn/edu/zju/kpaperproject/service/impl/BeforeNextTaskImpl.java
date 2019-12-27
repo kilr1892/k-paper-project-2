@@ -287,7 +287,12 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
 //                log.info("  ");
                 tbEngineFactory.setEngineFactoryId(engineFactoryId);
                 // 随机获取总资产较大的那个供应商动态数据
-                TbSupplierDynamic supplierDynamicWithHighestAsset = arrSupplierDynamicWith10HighestAsset[RandomUtils.nextInt(0, arrSupplierDynamicWith10HighestAsset.length)];
+                TbSupplierDynamic supplierDynamicWithHighestAsset = null;
+                if (0 < arrSupplierDynamicWith10HighestAsset.length) {
+                    supplierDynamicWithHighestAsset = arrSupplierDynamicWith10HighestAsset[RandomUtils.nextInt(0, arrSupplierDynamicWith10HighestAsset.length)];
+                } else {
+                    supplierDynamicWithHighestAsset = arrSupplierDynamicWith10HighestAsset[0];
+                }
 
 
                 mapNewEngineFactoryIdVsSupplierIdWithHighestCredit.put(engineFactoryId, supplierDynamicWithHighestAsset.getSupplierId());
@@ -636,11 +641,11 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
             // i=0,i=最后那个, i=中间的
             int indexLimit;
             if (i == 0) {
-                indexLimit = mapDistanceVsTbEngineFactoryDynamic.size();
+                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size()*0.8);
             } else if (i == listEngineFactoryDynamic.size() - 1) {
-                indexLimit = mapDistanceVsTbEngineFactoryDynamic.size() / 3;
+                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() *0.5);
             } else {
-                indexLimit = mapDistanceVsTbEngineFactoryDynamic.size() * 2 / 3;
+                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() * 0.2);
             }
             int index = 0;
             List<TbEngineFactoryDynamic> listTmp = new ArrayList<>();
@@ -691,11 +696,11 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
             // i=0,i=最后那个, i=中间的
             int indexLimit;
             if (i == 0) {
-                indexLimit = mapDistanceVsTbEngineFactoryDynamic.size();
+                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size()*0.8);
             } else if (i == listEngineFactoryDynamic.size() - 1) {
-                indexLimit = mapDistanceVsTbEngineFactoryDynamic.size() / 3;
+                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() *0.5);
             } else {
-                indexLimit = mapDistanceVsTbEngineFactoryDynamic.size() * 2 / 3;
+                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() * 0.2);
             }
             int index = 0;
             List<TbEngineFactoryDynamic> listTmp = new ArrayList<>();
@@ -750,6 +755,7 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
             }
         }
         int tmp = (int) Math.round(queueSupplierDynamic.size() * 0.1);
+        tmp = tmp > 0 ? tmp : 1;
         TbSupplierDynamic[] arrSupplierDynamic = new TbSupplierDynamic[tmp];
         for (int i = 0; i < tmp; i++) {
             arrSupplierDynamic[i] = queueSupplierDynamic.poll();
@@ -1152,48 +1158,51 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
             List<TbEngineFactoryDynamic> listEngineFactoryDynamics = mapSupplierIdVsListEngineFactoryDynamic.get(supplierId);
             for (TbEngineFactoryDynamic aEngineFactoryDynamic : listEngineFactoryDynamics) {
                 String engineFactoryId = aEngineFactoryDynamic.getEngineFactoryId();
-//                OrderPlus orderPlus = mapEngineIdVsListOrderPlus.get(engineFactoryId + aSupplierDynamic.getSupplierType());
                 List<OrderPlus> listOrderPluses = mapEngineIdVsListOrderPlus.get(engineFactoryId);
-                List<TransactionContract> listTransactionContracts = mapEngineFactoryIdVsListTransactionContract.get(engineFactoryId);
-                OrderPlus orderPlus = null;
-                TransactionContract transactionContract = null;
-                int supplierType = aSupplierDynamic.getSupplierType();
-                switch (supplierType) {
-                    case 210:
-                        orderPlus = listOrderPluses.get(0);
-                        transactionContract = listTransactionContracts.get(0);
-                        break;
-                    case 220:
-                        orderPlus = listOrderPluses.get(1);
-                        transactionContract = listTransactionContracts.get(1);
-                        break;
-                    case 230:
-                        orderPlus = listOrderPluses.get(2);
-                        transactionContract = listTransactionContracts.get(2);
-                        break;
-                    case 240:
-                        orderPlus = listOrderPluses.get(3);
-                        transactionContract = listTransactionContracts.get(3);
-                        break;
-                    case 250:
-                        orderPlus = listOrderPluses.get(4);
-                        transactionContract = listTransactionContracts.get(4);
-                        break;
-                    default:
-                        throw new RuntimeException("haha");
+                if (listOrderPluses != null) {
+
+
+                    List<TransactionContract> listTransactionContracts = mapEngineFactoryIdVsListTransactionContract.get(engineFactoryId);
+                    OrderPlus orderPlus = null;
+                    TransactionContract transactionContract = null;
+                    int supplierType = aSupplierDynamic.getSupplierType();
+                    switch (supplierType) {
+                        case 210:
+                            orderPlus = listOrderPluses.get(0);
+                            transactionContract = listTransactionContracts.get(0);
+                            break;
+                        case 220:
+                            orderPlus = listOrderPluses.get(1);
+                            transactionContract = listTransactionContracts.get(1);
+                            break;
+                        case 230:
+                            orderPlus = listOrderPluses.get(2);
+                            transactionContract = listTransactionContracts.get(2);
+                            break;
+                        case 240:
+                            orderPlus = listOrderPluses.get(3);
+                            transactionContract = listTransactionContracts.get(3);
+                            break;
+                        case 250:
+                            orderPlus = listOrderPluses.get(4);
+                            transactionContract = listTransactionContracts.get(4);
+                            break;
+                        default:
+                            throw new RuntimeException("haha");
+                    }
+
+                    sumTypePrice += orderPlus.getSupplierActualPriceP();
+                    sumNumber++;
+
+
+                    // 能观测到的最小需求量
+                    int engineFactoryNeedServiceNumber = mapEngineFactoryIdVsListEngineFactoryManufacturingTask.get(engineFactoryId).get(0).getEngineFactoryNeedServiceNumber();
+                    minEngineFactoryNeedServiceNumber = Math.min(minEngineFactoryNeedServiceNumber, engineFactoryNeedServiceNumber);
+
+                    // 交易契约质量
+                    sumEngineFactoryQuality += transactionContract.getOrderQuality();
+
                 }
-
-                sumTypePrice += orderPlus.getSupplierActualPriceP();
-                sumNumber++;
-
-                // 能观测到的最小需求量
-                int engineFactoryNeedServiceNumber = mapEngineFactoryIdVsListEngineFactoryManufacturingTask.get(engineFactoryId).get(0).getEngineFactoryNeedServiceNumber();
-                minEngineFactoryNeedServiceNumber = Math.min(minEngineFactoryNeedServiceNumber, engineFactoryNeedServiceNumber);
-
-                // 交易契约质量
-                sumEngineFactoryQuality += transactionContract.getOrderQuality();
-
-
 
 
             }
@@ -1381,10 +1390,12 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
             for (TbEngineFactoryDynamic aVisibleEngineFactoryDynamic : listVisibleEngineFactoryDynamics) {
                 String tmpId = aVisibleEngineFactoryDynamic.getEngineFactoryId();
                 EngineFactoryFinalProvision tmpFinalProvision = mapEngineFactoryIdVsFinalProvision.get(tmpId);
-                // 最终成交价格
-                sumFinalMarketPrice += tmpFinalProvision.getFinalMarketPrice();
-                // 成交质量
-                sumFinalMarketQuality += tmpFinalProvision.getFinalMarketQuality();
+                if (tmpFinalProvision != null) {
+                    // 最终成交价格
+                    sumFinalMarketPrice += tmpFinalProvision.getFinalMarketPrice();
+                    // 成交质量
+                    sumFinalMarketQuality += tmpFinalProvision.getFinalMarketQuality();
+                }
 
             }
 
@@ -1678,6 +1689,9 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
             }
         }
 
+        if (listEngineFactoryFinalProvision.size()== 0) {
+            throw new RuntimeException("listEngineFactoryFinalProvision is null ");
+        }
         engineFactoryFinalProvisionMapper.insertList(listEngineFactoryFinalProvision);
         return listEngineFactoryFinalProvision;
     }

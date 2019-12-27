@@ -4,9 +4,7 @@ import cn.edu.zju.kpaperproject.pojo.TbSupplierDynamic;
 import cn.edu.zju.kpaperproject.pojo.TbSupplierDynamicExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface TbSupplierDynamicMapper {
     int countByExample(TbSupplierDynamicExample example);
 

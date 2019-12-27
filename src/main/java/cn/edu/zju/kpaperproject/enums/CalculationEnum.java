@@ -80,7 +80,7 @@ public class CalculationEnum {
     }
     @Value("${experiments.ap.lm1}")
     public void setApLm1(double apLm1) {
-        CalculationEnum.apLm1 = apLm1;
+        CalculationEnum.apLm1 = 1d / apLm1;
     }
     @Value("${experiments.ap.lm2}")
     public void setApLm2(double apLm2) {
@@ -88,7 +88,7 @@ public class CalculationEnum {
     }
     @Value("${experiments.ap.lm3}")
     public void setApLm3(double apLm3) {
-        CalculationEnum.apLm3 = apLm3;
+        CalculationEnum.apLm3 = 1d / apLm3;
     }
     @Value("${experiments.ap.lm4}")
     public void setApLm4(double apLm4) {

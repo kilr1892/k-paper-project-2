@@ -337,6 +337,7 @@ public class StartTaskServiceImpl implements StartTaskService {
                 engineFactoryManufacturingTask.setEngineFactoryNeedServiceNumber(qi);
                 // 期望价格区间
                 int[] engineFactory2ServiceOfferPrice = genEngineFactory2ServiceOfferPrice(engineFactoryDynamic, i);
+
                 engineFactoryManufacturingTask.setEngineFactory2ServiceOfferPrice(engineFactory2ServiceOfferPrice);
                 // 期望质量
                 engineFactoryManufacturingTask.setEngineFactoryExpectedQuality(genEngineFactoryQuality(engineFactoryDynamic));

@@ -107,7 +107,9 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
 
         // # 把orderPlus存入数据库
         orderPlusMapper.insertList(listOrderPlus);
-
+//        for (OrderPlus orderPlus : listOrderPlus) {
+//            orderPlusMapper.insertSelective(orderPlus);
+//        }
         return listOrderPlus;
     }
 
@@ -149,7 +151,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
         }
         int iIjk;
         int iJki;
-        switch (sCi/sCjk) {
+        switch (sCi / sCjk) {
             case 1:
                 iIjk = 1;
                 iJki = 1;
@@ -220,6 +222,12 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
 //            // 有一个不履约就为负
 //            accumulativeTotalScore -= evaluationScoreSum;
 //        }
+        if (transactionContract.getEngineFactoryNeedServiceNumber() == 0) {
+//            throw new RuntimeException("主机厂需要数为0");
+            log.error("");
+            log.error("主机厂需要数为0");
+            log.error("");
+        }
         double tmp = accumulativeTotalScore * 1.0 / transactionContract.getEngineFactoryNeedServiceNumber();
         if (whetherPerformContract[0] && whetherPerformContract[1]) {
             // 都履约为正
@@ -252,7 +260,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             }
         }
 //        res = (int) Math.round((0.8 + 0.2 * tmpAbs) * engineFactoryNeedServiceNumber);
-        res = (int) (engineFactoryNeedServiceNumber * (0.6 + 0.4 * tmpAbs));
+        res = (int) (engineFactoryNeedServiceNumber * (0.2 + 0.8 * tmpAbs));
         return res;
     }
 
@@ -375,6 +383,10 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             // 匹配
             // 每个任务都进行粗, 再匹配, 精匹配(里面是剩余产能够的), 成功加入, 不成功删除
             for (EngineFactoryManufacturingTask aEngineFactoryManufacturingTask : listEngineFactoryTask) {
+                if (aEngineFactoryManufacturingTask.getEngineFactory2ServiceOfferPrice()[0] == 0 || aEngineFactoryManufacturingTask.getEngineFactory2ServiceOfferPrice()[1] == 0) {
+                    rollbackSupplierRestCapacity(mapEngineTaskVsSupplierTask);
+                    continue startEachEngineFactory;
+                }
                 // 每个循环是一个主机厂的一个任务
                 // 一个任务要走完所有流程
                 // 每个主机厂任务 aEngineFactoryManufacturingTask
@@ -388,13 +400,13 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                 // 最多能见到的供应商索引
                 int indexLimit;
                 if (i == 0) {
-                    indexLimit = supplierTasks.size();
+                    indexLimit = (int) (supplierTasks.size() * 0.8);
                 } else if (i == listListEngineFactoryTasks.size() - 1) {
                     // 最小的, 匹配1/3
-                    indexLimit = supplierTasks.size() / 3;
+                    indexLimit = (int) (supplierTasks.size() * 0.5);
                 } else {
                     // 中间的, 匹配2/3
-                    indexLimit = supplierTasks.size() * 2 / 3;
+                    indexLimit = (int) (supplierTasks.size() * 0.2);
                 }
 
 
@@ -424,7 +436,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                 // 供应商剩余产能
                 int supplierRestCapacity;
                 // 按服务数量匹配
-                 if (listMatchingSupplierTasks.size() == 1) {
+                if (listMatchingSupplierTasks.size() == 1) {
                     // 主机厂任务数量匹配到的服务 == 1
                     // 供应商
                     supplierTask = listMatchingSupplierTasks.get(0);
@@ -617,7 +629,6 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                 transactionContract.setOrderQuality(supplierTask.getSupplierQuality());
                 // 匹配度
                 transactionContract.setMatchDegree(engineFactoryManufacturingTask.getMatchDegree());
-
 
 
                 // 主机厂总资产
