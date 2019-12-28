@@ -1,7 +1,8 @@
 package cn.edu.zju.kpaperproject.service.impl;
 
 
-import cn.edu.zju.kpaperproject.dto.*;
+import cn.edu.zju.kpaperproject.dto.EngineFactoryManufacturingTask;
+import cn.edu.zju.kpaperproject.dto.TransactionContract;
 import cn.edu.zju.kpaperproject.enums.CalculationEnum;
 import cn.edu.zju.kpaperproject.enums.EngineFactoryEnum;
 import cn.edu.zju.kpaperproject.enums.NumberEnum;
@@ -270,7 +271,7 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
         if (marketNeedNumber > sumFinalProductNumberWithAlive) {
             // 真实需求 > 所有主机厂的(阶段结束, 实际能提供的产品)之和
             // 随机生成1~3个主机厂
-            int tmp = RandomUtils.nextInt(2, 5);
+            int tmp = RandomUtils.nextInt(4, 7);
             for (int i = 0; i < tmp; i++) {
                 tbEngineFactory = new TbEngineFactory();
                 tbEngineFactoryDynamic = new TbEngineFactoryDynamic();
@@ -455,7 +456,7 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
 //            log.error("|||supplierCapacity < engineFactoryNeedServiceNumberWithAlive : "+(supplierCapacity < engineFactoryNeedServiceNumberWithAlive));
             if (supplierCapacity < engineFactoryNeedServiceNumberWithAlive) {
                 // 供应商产能 < 主机厂对该类服务的需求
-                int tmp = RandomUtils.nextInt(2, 5);
+                int tmp = RandomUtils.nextInt(4, 7);
 //                log.info(supplierTypeCode[i]+" 生成供应商个数 "+tmp);
                 for (int j = 0; j < tmp; j++) {
                     tbSupplier = new TbSupplier();
@@ -641,11 +642,14 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
             // i=0,i=最后那个, i=中间的
             int indexLimit;
             if (i == 0) {
-                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size()*0.8);
+                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() * 0.8);
+                indexLimit = indexLimit > 0 ? indexLimit : mapDistanceVsTbEngineFactoryDynamic.size();
             } else if (i == listEngineFactoryDynamic.size() - 1) {
-                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() *0.5);
+                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() * 0.5);
+                indexLimit = indexLimit > 0 ? indexLimit : 1;
             } else {
                 indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() * 0.2);
+                indexLimit = indexLimit > 0 ? indexLimit : 1;
             }
             int index = 0;
             List<TbEngineFactoryDynamic> listTmp = new ArrayList<>();
@@ -696,11 +700,14 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
             // i=0,i=最后那个, i=中间的
             int indexLimit;
             if (i == 0) {
-                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size()*0.8);
+                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() * 0.8);
+                indexLimit = indexLimit > 0 ? indexLimit : mapDistanceVsTbEngineFactoryDynamic.size();
             } else if (i == listEngineFactoryDynamic.size() - 1) {
-                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() *0.5);
+                indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() * 0.5);
+                indexLimit = indexLimit > 0 ? indexLimit : 1;
             } else {
                 indexLimit = (int) (mapDistanceVsTbEngineFactoryDynamic.size() * 0.2);
+                indexLimit = indexLimit > 0 ? indexLimit : 1;
             }
             int index = 0;
             List<TbEngineFactoryDynamic> listTmp = new ArrayList<>();

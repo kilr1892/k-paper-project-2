@@ -4,8 +4,9 @@ import cn.edu.zju.kpaperproject.dto.*;
 import cn.edu.zju.kpaperproject.enums.CalculationEnum;
 import cn.edu.zju.kpaperproject.enums.NumberEnum;
 import cn.edu.zju.kpaperproject.mapper.OrderPlusMapper;
-import cn.edu.zju.kpaperproject.pojo.*;
-import cn.edu.zju.kpaperproject.service.BeforeNextTask;
+import cn.edu.zju.kpaperproject.pojo.OrderPlus;
+import cn.edu.zju.kpaperproject.pojo.TbEngineFactory;
+import cn.edu.zju.kpaperproject.pojo.TbRelationMatrix;
 import cn.edu.zju.kpaperproject.service.ProcessTaskService;
 import cn.edu.zju.kpaperproject.utils.CalculationUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -105,6 +106,14 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             listOrderPlus.add(orderPlus);
         }
 
+        if (listOrderPlus.size() == 0) {
+
+            log.error("");
+            log.error("listTransactionContracts.size()  " + listTransactionContracts.size());
+            log.error("listOrderPlus.size == 0");
+            log.error("");
+
+        }
         // # 把orderPlus存入数据库
         orderPlusMapper.insertList(listOrderPlus);
 //        for (OrderPlus orderPlus : listOrderPlus) {
@@ -312,8 +321,8 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
      * @return 0: 主机厂履约概率, 1: 供应商履约概率
      */
     private double[] getPerformanceProbability(TransactionContract transactionContract, Map<String, Double> mapRelationshipMatrix) {
-        final double lowerLimit = 0.2;
-        final double upperLimit = 0.6;
+        final double lowerLimit = 0;
+        final double upperLimit = 0.5;
         // key
         String key = transactionContract.getEngineFactoryId() + transactionContract.getSupplierId();
         // 信誉度
@@ -369,6 +378,10 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
         startEachEngineFactory:
         for (int i = 0; i < listListEngineFactoryTasks.size(); i++) {
             ArrayList<EngineFactoryManufacturingTask> listEngineFactoryTask = listListEngineFactoryTasks.get(i);
+//            log.error("");
+//            log.error("");
+//            log.error("  # startEachEngineFactory"+listEngineFactoryTask.get(0).getEngineFactoryId());
+//            log.error("");
 //        for (ArrayList<EngineFactoryManufacturingTask> listEngineFactoryTask : listListEngineFactoryTasks) {
             // 每个循环是一个主机厂的所有任务集合
 
@@ -383,7 +396,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             // 匹配
             // 每个任务都进行粗, 再匹配, 精匹配(里面是剩余产能够的), 成功加入, 不成功删除
             for (EngineFactoryManufacturingTask aEngineFactoryManufacturingTask : listEngineFactoryTask) {
-                if (aEngineFactoryManufacturingTask.getEngineFactory2ServiceOfferPrice()[0] == 0 || aEngineFactoryManufacturingTask.getEngineFactory2ServiceOfferPrice()[1] == 0) {
+                if (aEngineFactoryManufacturingTask.getEngineFactory2ServiceOfferPrice()[0] == 0 && aEngineFactoryManufacturingTask.getEngineFactory2ServiceOfferPrice()[1] == 0) {
                     rollbackSupplierRestCapacity(mapEngineTaskVsSupplierTask);
                     continue startEachEngineFactory;
                 }
@@ -401,14 +414,29 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
                 int indexLimit;
                 if (i == 0) {
                     indexLimit = (int) (supplierTasks.size() * 0.8);
+                    indexLimit = indexLimit > 0 ? indexLimit : supplierTasks.size();
                 } else if (i == listListEngineFactoryTasks.size() - 1) {
                     // 最小的, 匹配1/3
                     indexLimit = (int) (supplierTasks.size() * 0.5);
+                    indexLimit = indexLimit > 0 ? indexLimit : 1;
                 } else {
                     // 中间的, 匹配2/3
                     indexLimit = (int) (supplierTasks.size() * 0.2);
+                    indexLimit = indexLimit > 0 ? indexLimit : 1;
                 }
 
+//                log.warn("");
+//                log.warn("i " + i);
+//                log.warn("indexLimit  supplierTasks.size():  " + supplierTasks.size());
+//                log.warn("indexLimit  supplierTasks.size()*0.8: " + supplierTasks.size() * 0.8);
+//                log.warn("indexLimit  supplierTasks.size()*0.8: " + (int)(supplierTasks.size() * 0.8));
+//                log.warn("indexLimit  supplierTasks.size()*0.5: " + supplierTasks.size() * 0.5);
+//                log.warn("indexLimit  supplierTasks.size()*0.5: " + (int)(supplierTasks.size() * 0.5));
+//                log.warn("indexLimit  supplierTasks.size()*0.2: " + supplierTasks.size() * 0.2);
+//                log.warn("indexLimit  supplierTasks.size()*0.2: " + (int)(supplierTasks.size() * 0.2));
+//                log.warn("");
+//                log.warn("indexLimit: " + i + "  " + indexLimit);
+//                log.warn("indexLimit: " + i + "  " + indexLimit);
 
                 // ## 粗匹配( 用剩余产能 )
                 ArrayList<SupplierTask> listMatchingSupplierTasks = roughMatching(aEngineFactoryManufacturingTask, supplierTasks, indexLimit);
@@ -499,6 +527,16 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             }
             // 加入匹配成功集合
             listMapEngineFactoryTaskVsSupplierTask.add(mapEngineTaskVsSupplierTask);
+//            log.error("");
+//            log.error("");
+//            log.error("  #end  startEachEngineFactory"+listEngineFactoryTask.get(0).getEngineFactoryId());
+//            log.error("");
+        }
+
+        if (listMapEngineFactoryTaskVsSupplierTask.size() == 0) {
+            log.error("");
+            log.error("listMapEngineFactoryTaskVsSupplierTask.size == 0");
+            log.error("");
         }
         ArrayList<TransactionContract> listTransactionContract = genTransactionContracts(listMapEngineFactoryTaskVsSupplierTask);
         return listTransactionContract;
@@ -756,8 +794,8 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
 
                             // 三个条件都满足, 加入匹配上的数组里
                             listRes.add(supplierTask);
-//                            log.info("  end  " + engineFactory2ServiceOfferPrice[0] + "  " + engineFactory2ServiceOfferPrice[1]);
-//                            log.info("  end  " + engineFactoryExpectedQuality);
+//                            log.info("  #end  " + engineFactory2ServiceOfferPrice[0] + "  " + engineFactory2ServiceOfferPrice[1]);
+//                            log.info("  #end  " + engineFactoryExpectedQuality);
 
                             flag = true;
                         }
