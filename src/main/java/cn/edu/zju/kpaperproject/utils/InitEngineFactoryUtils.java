@@ -32,6 +32,7 @@ public class InitEngineFactoryUtils {
             Double valueY = mapPosition.get(x);
             if (valueY == null) {
                 // 没用y的值,就是没有x的key, 就是ok的
+                mapPosition.put(x, y);
                 return new double[]{x, y};
             } else {
                 // 有相同的x, 看看y一不一样

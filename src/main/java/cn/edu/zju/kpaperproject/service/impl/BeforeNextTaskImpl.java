@@ -291,9 +291,10 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
                 TbSupplierDynamic supplierDynamicWithHighestAsset = null;
                 if (0 < arrSupplierDynamicWith10HighestAsset.length) {
                     supplierDynamicWithHighestAsset = arrSupplierDynamicWith10HighestAsset[RandomUtils.nextInt(0, arrSupplierDynamicWith10HighestAsset.length)];
-                } else {
-                    supplierDynamicWithHighestAsset = arrSupplierDynamicWith10HighestAsset[0];
                 }
+//                else {
+//                    supplierDynamicWithHighestAsset = arrSupplierDynamicWith10HighestAsset[0];
+//                }
 
 
                 mapNewEngineFactoryIdVsSupplierIdWithHighestCredit.put(engineFactoryId, supplierDynamicWithHighestAsset.getSupplierId());
@@ -301,7 +302,14 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
                 // 地理位置
                 tbSupplier = mapSupplier.get(supplierDynamicWithHighestAsset.getSupplierId());
 
-                double[] position = genNewPosition(new double[]{tbSupplier.getSupplierLocationGX(), tbSupplier.getSupplierLocationGY()}, mapEngineFactoryPosition);
+                double[] position;
+                if (i < tmp * 0.7) {
+                    // 位置70%按照原来的
+                    position = genNewPosition(new double[]{tbSupplier.getSupplierLocationGX(), tbSupplier.getSupplierLocationGY()}, mapEngineFactoryPosition);
+                } else {
+                    // 30%随机
+                    position = InitEngineFactoryUtils.initPosition(mapEngineFactoryPosition);
+                }
 
                 tbEngineFactory.setEngineFactoryLocationGX(position[NumberEnum.POSITION_X_ARRAY_INDEX]);
                 tbEngineFactory.setEngineFactoryLocationGY(position[NumberEnum.POSITION_Y_ARRAY_INDEX]);
@@ -478,7 +486,12 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
 
                     // 地理位置
                     tbEngineFactory = mapEngineFactory.get(engineFactoryDynamicWithHighestAsset.getEngineFactoryId());
-                    double[] position = genNewPosition(new double[]{tbEngineFactory.getEngineFactoryLocationGX(), tbEngineFactory.getEngineFactoryLocationGY()}, mapEngineFactoryPosition);
+                    double[] position;
+                    if (i < tmp * 0.7) {
+                        position = genNewPosition(new double[]{tbEngineFactory.getEngineFactoryLocationGX(), tbEngineFactory.getEngineFactoryLocationGY()}, mapSupplierPosition);
+                    } else {
+                        position = InitSupplierUtils.initPosition(mapSupplierPosition);
+                    }
                     tbSupplier.setSupplierLocationGX(position[NumberEnum.POSITION_X_ARRAY_INDEX]);
                     tbSupplier.setSupplierLocationGY(position[NumberEnum.POSITION_Y_ARRAY_INDEX]);
                     // 供应商代码
@@ -516,6 +529,20 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
             }
         }
 
+        // 算两者距离, 存入map里
+        Map<String, Double> mapDistance = new HashMap<>(100);
+        for (TbEngineFactory aTbEngineFactory : listEngineFactory) {
+            String engineFactoryId = aTbEngineFactory.getEngineFactoryId();
+            double[] engineFactoryLocation = {aTbEngineFactory.getEngineFactoryLocationGX(), aTbEngineFactory.getEngineFactoryLocationGY()};
+            for (TbSupplier aSupplier : listSupplier) {
+                String supplierId = aSupplier.getSupplierId();
+                String key = engineFactoryId + supplierId;
+
+                double[] supplierLocation = {aSupplier.getSupplierLocationGX(), aSupplier.getSupplierLocationGY()};
+                double value = CalculationUtils.calDistance(engineFactoryLocation, supplierLocation);
+                mapDistance.put(key, value);
+            }
+        }
 
         // 关系强度, 都是重新生成的, 每个阶段生成, 历史数据用map读出来,
         // 下一个阶段要用的关系矩阵
@@ -539,7 +566,21 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
                 TbRelationMatrix oldRelationMatrix = mapRelationshipMatrix2WithTbRelationMatrix.get(mapKey);
                 if (oldRelationMatrix != null) {
                     // 原来有的
-                    tbRelationMatrix.setRelationScore(oldRelationMatrix.getRelationScore());
+                    double relationScore = oldRelationMatrix.getRelationScore();
+                    // 这里要根据关系强度来修改
+                    // 距离大小
+                    double distanceValue = mapDistance.get(mapKey);
+                    if (distanceValue > 13) {
+                        relationScore = relationScore - 0.15;
+                    } else if (distanceValue > 9) {
+                        relationScore = relationScore - 0.1;
+                    } else if (distanceValue > 5) {
+                        relationScore = relationScore - 0.05;
+                    }
+                    tbRelationMatrix.setRelationScore(relationScore);
+
+
+//                    tbRelationMatrix.setRelationScore(oldRelationMatrix.getRelationScore());
                     tbRelationMatrix.setInitialRelationalDegree(oldRelationMatrix.getInitialRelationalDegree());
                     tbRelationMatrix.setAccumulativeTotalScore(oldRelationMatrix.getAccumulativeTotalScore());
                     tbRelationMatrix.setTransactionNumber(oldRelationMatrix.getTransactionNumber());
@@ -1602,6 +1643,7 @@ public class BeforeNextTaskImpl implements BeforeNextTask {
             Double valueY = mapPosition.get(x);
             if (valueY == null) {
                 // 没有x的key, 就是ok的
+                mapPosition.put(x, y);
                 return new double[]{x, y};
             } else {
                 // 有相同的x, 看看y一不一样

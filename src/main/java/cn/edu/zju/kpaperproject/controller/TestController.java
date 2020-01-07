@@ -89,7 +89,7 @@ public class TestController {
 
             // # links
             // _关系强度大于某值的连线
-            if (relationScore > 0.18) {
+            if (relationScore > 0.19) {
                 // 连线了
                 graphLink = new GraphLink();
                 graphLink.setSourceId(engineFactoryId);

@@ -1,8 +1,6 @@
 package cn.edu.zju.kpaperproject.service;
 
 import cn.edu.zju.kpaperproject.dto.EngineFactoryManufacturingTask;
-import cn.edu.zju.kpaperproject.dto.EngineFactoryRank;
-import cn.edu.zju.kpaperproject.dto.SupplierRank;
 import cn.edu.zju.kpaperproject.dto.TransactionContract;
 import cn.edu.zju.kpaperproject.pojo.*;
 
@@ -56,8 +54,6 @@ public interface BeforeNextTask {
      * @param listSupplierDynamics                       所有存活服务商动态数据集合
      * @param mapRelationshipMatrix2WithTbRelationMatrix 关系矩阵
      * @param listListEngineFactoryTaskDecomposition     主机厂发布任务量
-     * @param mapEngineFactoryIdVsRank
-     * @param mapSupplierIdVsRank
      */
     void beforeNextTask(
             int experimentsNumber
