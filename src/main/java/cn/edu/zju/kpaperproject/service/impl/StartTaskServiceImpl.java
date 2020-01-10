@@ -7,17 +7,17 @@ import cn.edu.zju.kpaperproject.dto.SupplierTask;
 import cn.edu.zju.kpaperproject.enums.NumberEnum;
 import cn.edu.zju.kpaperproject.enums.SupplierEnum;
 import cn.edu.zju.kpaperproject.enums.TaskDecompositionEnum;
-import cn.edu.zju.kpaperproject.mapper.TbEngineFactoryMapper;
-import cn.edu.zju.kpaperproject.mapper.TbRelationMatrixMapper;
-import cn.edu.zju.kpaperproject.mapper.TbSupplierMapper;
+import cn.edu.zju.kpaperproject.mapper.*;
 import cn.edu.zju.kpaperproject.pojo.*;
 import cn.edu.zju.kpaperproject.service.StartTaskService;
-import cn.edu.zju.kpaperproject.mapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * .
@@ -416,6 +416,9 @@ public class StartTaskServiceImpl implements StartTaskService {
         for (int i = 0; i < priceRange.length; i++) {
             int round = (int) Math.round(priceRange[i] * TaskDecompositionEnum.taskDecompositionXic * taskDecompositionEjcs[codeType] / TaskDecompositionEnum.taskDecompositionEjd);
             res[i] = round;
+        }
+        if (res[0] == res[1] && res[0] != 0) {
+            res[1] = res[1] + 1;
         }
         return res;
     }

@@ -193,7 +193,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
         int engineFactoryNeedServiceNumber = transactionContract.getEngineFactoryNeedServiceNumber();
 
         int[] res = new int[2];
-        res[0] = (iJki + iIjk * ri - iIjk * rjk - iIjk) * orderPrice * engineFactoryNeedServiceNumber + (iIjk + iJki * rjk - iIjk * ri - iIjk - 1) * orderPrice * actualTransactionsNumber;
+        res[0] = (int) ((iJki + iIjk * ri - iIjk * rjk - iIjk) * orderPrice * engineFactoryNeedServiceNumber + (iIjk + iJki * rjk - iIjk * ri - iIjk - 1.25) * orderPrice * actualTransactionsNumber);
         // 两地距离
         int distance = (int) Math.round(CalculationUtils.calDistance(transactionContract.getEngineFactoryLocationXY(), transactionContract.getSupplierLocationXY()));
         res[1] = (int) (0.1 * (iIjk + iJki * rjk - iIjk * ri - iJki) * orderPrice * engineFactoryNeedServiceNumber +
@@ -269,7 +269,7 @@ public class ProcessTaskServiceImpl implements ProcessTaskService {
             }
         }
 //        res = (int) Math.round((0.8 + 0.2 * tmpAbs) * engineFactoryNeedServiceNumber);
-        res = (int) (engineFactoryNeedServiceNumber * (0.2 + 0.8 * tmpAbs));
+        res = (int) (engineFactoryNeedServiceNumber * (0.9 + 0.1 * tmpAbs));
         return res;
     }
 
